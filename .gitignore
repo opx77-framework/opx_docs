@@ -1,0 +1,19 @@
+# Next.js / Fumadocs
+.next/
+out/
+.source/
+node_modules/
+next-env.d.ts
+*.tsbuildinfo
+
+# Environment
+.env*
+
+# Editors and OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Generated at build time by scripts/build-content.mjs
+content/
