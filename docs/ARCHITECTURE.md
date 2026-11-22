@@ -83,6 +83,9 @@ Rules:
   Declare exactly the permissions the natives need. Run `open77_validate` on the resource directory when done.
 - Use `Open77.log.*` or `print` with a `[opx_x]` prefix. No debug spam.
 - Database tables are prefixed `opx_`. `CREATE TABLE IF NOT EXISTS` at start. No migrations.
+- Every resource ships `server/version.lua` (local copy, no shared lib) and `Config.versionCheck`: at start it compares
+  its manifest `version` with `opx77-framework/<resource>` on GitHub and prints `[opx_x] update available: a -> b`.
+  Bump `version` in `open77.lua` on every release, or servers never hear about it.
 
 ## Cross-resource communication (Open77 facts)
 

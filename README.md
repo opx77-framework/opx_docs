@@ -113,8 +113,25 @@ Clone each `opx_*` repository of [opx77-framework](https://github.com/opx77-fram
 },
 "convars": {
   "open77_appearance_creation": "runtime"   // new characters are built in the world (opx_creator)
+},
+"http": {
+  "enabled": true,
+  "allowedHosts": ["raw.githubusercontent.com"]   // update check (Config.versionCheck), optional
 }
 ```
+
+### Update check
+
+At start, every resource compares the `version` of its `open77.lua` with the one on the `main` branch of its
+repository (`opx77-framework/<resource>`) and prints one line in the server console when a newer one is out:
+
+```text
+[opx_bank] update available: 1.0.0 -> 1.1.0, https://github.com/opx77-framework/opx_bank
+```
+
+It needs outbound HTTP (the `http` block above, with `raw.githubusercontent.com` allowed) and the `http.request`
+permission each manifest declares. `Config.versionCheck = false` in a resource's `config.lua` turns it off for
+that resource. A failed check is silent (debug log only).
 
 Each resource has a `config.lua` (the only file to edit), `locales/en.json` + `locales/fr.json`, a `types.lua` describing
 its exports, and a README.
