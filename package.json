@@ -3,11 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "content": "node scripts/build-content.mjs",
-    "dev": "npm run content && next dev",
-    "build": "npm run content && next build",
+    "dev": "next dev",
+    "build": "next build",
     "start": "serve out",
-    "types:check": "fumadocs-mdx && next typegen && tsc --noEmit"
+    "check": "node scripts/check-mdx.mjs",
+    "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
+    "postinstall": "fumadocs-mdx"
   },
   "dependencies": {
     "@orama/orama": "^3.1.18",

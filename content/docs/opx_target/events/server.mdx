@@ -1,0 +1,28 @@
+---
+title: Server
+---
+
+### option.serverEvent
+
+Sent to the server when an option with `serverEvent = '<name>'` is selected. The name is yours; validate everything in the handler.
+
+```lua
+RegisterNetEvent('myres:target:rob', function(targetId, info)
+    local src = source
+end)
+```
+
+- targetId?: `number` or `string`
+  - The target's `playerId`, `vehicleId` or `npcId`, or its `propId` (decimal string). `nil` for a surface or the sky.
+- info: `table`
+  - kind: `string`
+  - option: `string`
+    - The option's `name`.
+  - model?: `string`
+  - position?: `{ x, y, z }`
+    - Hit point. `nil` for the sky.
+  - distance?: `number`
+  - direction?: `{ x, y, z }`
+    - Sky only: the ray's unit direction.
+  - data?: `table`
+    - Copy of the option's `data`.

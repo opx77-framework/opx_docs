@@ -3,6 +3,7 @@ import type { MDXComponents } from "mdx/types";
 import * as TabsComponents from "fumadocs-ui/components/tabs";
 import { TypeTable } from "fumadocs-ui/components/type-table";
 import { Accordion, Accordions } from "fumadocs-ui/components/accordion";
+import { ResourceLinks } from "@/components/resource-links";
 
 export function getMDXComponents(components?: MDXComponents) {
   return {
@@ -11,6 +12,7 @@ export function getMDXComponents(components?: MDXComponents) {
     TypeTable,
     Accordion,
     Accordions,
+    ResourceLinks,
     ...components,
   } satisfies MDXComponents;
 }

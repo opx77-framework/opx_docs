@@ -1,0 +1,48 @@
+---
+title: opx_skin
+description: Clothing API. Saved clothes, job uniforms, try-on previews and saved outfits.
+---
+
+<ResourceLinks repo="opx_skin" />
+
+Clothing API of OPX: saved clothes, job uniforms, try-on previews and saved outfits. No shop or wardrobe screen of its own: those are [opx_creator](/docs/opx_creator) opened with `scope = 'clothing'`. Provider of the `skin` slot in opx_core.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+- [opx_dialog](/docs/opx_dialog)
+- open77_appearance `>= 0.5.0`
+- open77_equipment
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_skin.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_dialog",
+"opx_skin"
+```
+
+Load it before `opx_creator`. The `opx_skin_outfits` table is created at start. No other resource may call `open77_appearance:setTemporaryOutfit`: jobs use `SetUniform`.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.outfits = { max = 12, sessionMinutes = 5, sessionDistance = 4.0 } -- saved outfits per character, menu session
+Config.hide = { 'Crafting$', '_Test', '[Dd]ebug' } -- Lua patterns of garments left out of the lists
+Config.settleMs = 700           -- raise it if clothes are lost on a relog right after a change
+Config.command = nil            -- e.g. 'outfits': opens your outfits menu anywhere
+Config.commandRestricted = true -- the command needs ACL right command.<name>
+Config.versionCheck = true
+```

@@ -1,0 +1,43 @@
+---
+title: Server
+---
+
+`bySource` is the player who acted, `nil` when an export did it.
+
+### opx:vehiclekeys:lockChanged
+
+A car was locked or unlocked.
+
+```lua
+AddEventHandler('opx:vehiclekeys:lockChanged', function(vehicleId, locked, bySource) end)
+```
+
+- vehicleId: `integer`
+- locked: `boolean`
+- bySource?: `integer`
+
+### opx:vehiclekeys:keyGiven
+
+A character received a key.
+
+```lua
+AddEventHandler('opx:vehiclekeys:keyGiven', function(plateOrVehicleId, citizenId, bySource, temporary) end)
+```
+
+- plateOrVehicleId: `string` or `integer`
+  - The plate for a stored key, the vehicle id for a temporary key.
+- citizenId: `string`
+- bySource?: `integer`
+- temporary: `boolean`
+
+### opx:vehiclekeys:keyRemoved
+
+A key was taken back. Not triggered when keys go with a removed car or a deleted character.
+
+```lua
+AddEventHandler('opx:vehiclekeys:keyRemoved', function(plateOrVehicleId, citizenId, bySource) end)
+```
+
+- plateOrVehicleId: `string` or `integer`
+- citizenId: `string`
+- bySource?: `integer`

@@ -1,0 +1,55 @@
+---
+title: opx_needs
+description: Hunger and thirst, with food and drink items.
+---
+
+<ResourceLinks repo="opx_needs" />
+
+Hunger and thirst go down over time and hurt the character when empty. Eating or drinking an item plays a timed action with an animation. opx_needs owns the food and drink items and registers them on the inventory provider. Values are opx_core character metadata `hunger` and `thirst` (0 to 100), no table.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_inventory](/docs/opx_inventory) (without it nothing can be eaten)
+- [opx_progress](/docs/opx_progress)
+- [opx_medical](/docs/opx_medical) (optional)
+- open77_animations (for the animations)
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_needs.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_inventory",
+"opx_progress",
+"opx_medical",
+"opx_needs"
+```
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.decay = { hunger = 0.55, thirst = 0.75 } -- points lost every Config.tickSeconds (60)
+Config.warnAt = { 25, 10 }  -- one notification when a need drops to these values
+Config.starve = { intervalSeconds = 30, damage = 5, lethal = true, minHealth = 10 } -- damage at 0
+Config.afterRevive = 30     -- both needs raised to at least this after a revive
+Config.consumables = {      -- one entry per item; never rename a key players own
+    water = { label = { en = 'Water', fr = 'Eau' }, weightG = 500, thirst = 30, seconds = 4, animation = 'bottle_walk' },
+}
+Config.commands = { setneed = 'setneed' } -- false = no command
+Config.versionCheck = true
+```
+
+## Usage
+
+- Use a food or drink item from the inventory. Cancelling the bar consumes nothing.
+- `/setneed <playerId|me> <hunger|thirst> <0-100>`: staff, ACL `command.setneed`.

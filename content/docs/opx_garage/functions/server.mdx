@@ -1,0 +1,75 @@
+---
+title: Server
+---
+
+All exports are synchronous.
+
+## GetGarages
+
+Copies of the configured garages (invalid rows are dropped at start).
+
+```lua
+exports.opx_garage:GetGarages()
+```
+
+**Returns**
+
+- garages: `table[]`
+  - name: `string`
+  - label: `string`
+  - type: `'public'` or `'impound'`
+  - x, y, z: `number`
+  - radius: `number`
+  - bucket: `integer`
+  - spawns: `{ x, y, z, heading }[]`
+
+## OpenGarage
+
+Opens a garage menu for a player without the position check (phone app, job). Its actions are accepted anywhere for 5 minutes; cars still come out on that garage's bays and are stored only near it.
+
+```lua
+exports.opx_garage:OpenGarage(source, name)
+```
+
+- source: `integer`
+- name: `string`
+  - A `Config.garages` name.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_player'`, `'not_loaded'`, `'unknown_garage'`
+
+## Impound
+
+Sends an owned car that is out to the impound garage. Occupants are not checked. The owner is told when online.
+
+```lua
+exports.opx_garage:Impound(plateOrVehicleId, bySource)
+```
+
+- plateOrVehicleId: `string` or `integer`
+  - A plate, or a live vehicle id.
+- bySource?: `integer`
+  - Passed on in `opx:garage:impounded`.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'no_impound'`, `'invalid_plate'`, `'invalid_vehicle'`, `'not_owned'`, `'not_out'`, or an opx_core `StoreOwnedVehicle` refusal
+
+## GetVehicleGarage
+
+Garage name of a stored car. `'default'` or a name no longer configured counts as any public garage.
+
+```lua
+exports.opx_garage:GetVehicleGarage(plate)
+```
+
+- plate: `string`
+
+**Returns**
+
+- garage?: `string`
+  - `nil` when the car is out or unknown.

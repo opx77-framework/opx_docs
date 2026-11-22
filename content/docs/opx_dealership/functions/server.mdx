@@ -1,0 +1,35 @@
+---
+title: Server
+---
+
+## GetCatalogue
+
+Copies of the catalogue rows. Rows whose record the platform does not know are dropped at start.
+
+```lua
+exports.opx_dealership:GetCatalogue()
+```
+
+**Returns**
+
+- catalogue: `table[]`
+  - index: `integer`
+  - record: `string`
+    - `Vehicle.*` TweakDB record.
+  - label: `string`
+  - category: `string`
+  - price: `integer`
+
+## IsOnDuty
+
+Whether the player holds the `cardealer` job and is on duty.
+
+```lua
+exports.opx_dealership:IsOnDuty(source)
+```
+
+- source: `integer`
+
+**Returns**
+
+- onDuty: `boolean`

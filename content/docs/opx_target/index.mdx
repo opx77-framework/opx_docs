@@ -1,0 +1,49 @@
+---
+title: opx_target
+description: Hold ALT, aim at a target, right click for its context menu. Client library.
+---
+
+<ResourceLinks repo="opx_target" />
+
+Targeting eye: hold ALT to aim at a player, NPC, vehicle, door, object, surface or the sky, then right click for its context menu. It ships no actions of its own: other resources register the options.
+
+## Installation
+
+### Dependencies [step]
+
+None. Do not load the official `open77_contextmenu` too: both use ALT.
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_target.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_target"
+```
+
+Load it before the resources that add options.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.key = 'ALT'               -- held to aim, rebindable by players
+Config.openButton = 'right'      -- 'right', 'left' or 'middle'
+Config.captureKeyboard = false   -- true: keyboard menu navigation, but no walking while aiming
+Config.allowInVehicle = false    -- true: the eye also works from a vehicle seat
+Config.rayDistance = 15.0        -- metres the camera ray reaches
+Config.defaultDistance = 3.0     -- metres, for an option without `distance`
+Config.versionCheck = true
+```
+
+## Usage
+
+- Hold ALT: frames and names what is under the cursor (rebindable, "Target eye").
+- Right click: opens its menu. Hover a row to open its submenu, click to run it.
+- Release ALT, or click outside: closes everything.

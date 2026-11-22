@@ -1,0 +1,392 @@
+---
+title: Client
+---
+
+The library runs in your resource. Declare `dependency "opx_menu"` (and `dependency "opx_dialog"` for `Menu.dialog`), then:
+
+```lua
+local Menu = require('@opx_menu')
+```
+
+Callbacks run in their own thread, so they may yield (`Menu.dialog`, `Menu.confirm`, `Wait`).
+
+## Menu.open
+
+Opens a menu. Without `parent`, it replaces this resource's open menus.
+
+```lua
+Menu.open(opts)
+```
+
+- opts: `table`
+  - id?: `string`
+  - title?: `string`
+  - subtitle?: `string`
+    - Shown upper-cased in the footer line.
+  - position?: `'left'` or `'right'`
+    - Default `Config.position`.
+  - elements: `table[]`
+    - See [Element](#element).
+  - selected?: `integer` or `any`
+    - Index or element `value` selected on open.
+  - maxVisible?: `integer`
+    - Rows drawn at once; can only lower `Config.wheel.rows`.
+  - canClose?: `boolean`
+    - `false`: Backspace / Escape do nothing and other resources cannot take the screen.
+  - parent?: `menu`
+    - Backspace returns to it.
+  - onSelect?: `function(element, menu)`
+    - Enter (not on checkboxes, not on disabled rows).
+  - onChange?: `function(element, value, menu)`
+    - list / color: `index`, slider: `current`, checkbox: `checked`.
+  - onHover?: `function(element, menu)`
+    - Selection moved, also on open and when returning from a child.
+  - onClose?: `function(menu, reason)`
+    - reason: `'back'`, `'closed'`, `'closeAll'`, `'replaced'`, `'preempted'`, `'paused'`, `'stopped'`
+
+**Returns**
+
+- menu?: `menu`
+- reason?: `string`
+  - `'invalid_options'`, `'invalid_elements'`, `'nativeui_unavailable'`, `'opx_menu_unavailable'`, `'ui_files_unreadable'`, `'ui_create_failed'`, `'menu_busy'`, `'dialog_busy'`, `'no_caller'`
+
+```lua
+Menu.open({
+    title = 'Garage', subtitle = 'Vehicles',
+    elements = {
+        { label = 'Take out', value = 'out', icon = 'car' },
+        { label = 'Colour', value = 'color', type = 'list', options = { 'Red', 'Black' } },
+        { label = 'Close', value = 'close', icon = 'close' },
+    },
+    onSelect = function(element, menu)
+        if element.value == 'close' then menu:close() end
+    end,
+})
+```
+
+## Element
+
+One row of `elements`.
+
+- type?: `'button'`, `'list'`, `'slider'`, `'color'`, `'checkbox'`, `'separator'`
+  - Default `'button'`.
+- label?: `string`
+- value?: `any`
+  - Key used by `updateElement` / `getElement`.
+- icon?: `string`
+  - Line icon before the label. `Menu.icons()` lists the names.
+- description?: `string`
+  - Shown under the selected row, two lines max.
+- rightLabel?: `string`
+- disabled?: `boolean`
+  - Can be selected, fires nothing.
+- options?: `(string | number | { label, value })[]`
+  - list.
+- colors?: `({ r, g, b } | '#rrggbb')[]`
+  - color.
+- index?: `integer`
+  - list / color: current position, 1-based. Kept up to date.
+- min?: `number`
+  - slider, default `0`.
+- max?: `number`
+  - slider, default `100`.
+- step?: `number`
+  - slider, default `1`.
+- current?: `number`
+  - slider: current value. Kept up to date.
+- format?: `string`
+  - slider: `string.format` pattern, e.g. `'%.2f'`.
+- checked?: `boolean`
+  - checkbox. Kept up to date.
+
+## Menu.dialog
+
+Form drawn by opx_dialog, while the menu wheel is hidden. Waits: call it from a thread or a menu callback.
+
+```lua
+Menu.dialog(opts)
+```
+
+- opts: `table`
+  - title?: `string`
+  - subtitle?: `string`
+  - message?: `string`
+  - fields: `table[]`
+    - Same fields as [opx_dialog](/docs/opx_dialog/functions/client#field), but `required` defaults to `true` and a select `default` may be an option index.
+  - submitLabel?: `string`
+  - cancelLabel?: `string`
+  - canCancel?: `boolean`
+    - Default `true`.
+  - validate?: `function(values)`
+    - Return `false, message` to keep the form open. May yield.
+
+**Returns**
+
+- values?: `table`
+  - Keyed by field `name`, else by field position.
+- reason?: `string`
+  - `'cancelled'`, `'closed'`, `'focus_lost'`, `'dialog_busy'`, `'not_in_thread'`, `'dialog_unavailable'`, `'dialog_failed'`, `'invalid_field'`, `'invalid_options'`
+
+## Menu.confirm
+
+Yes/no question. Waits like `Menu.dialog`.
+
+```lua
+Menu.confirm(opts)
+```
+
+- opts: `table`
+  - title?: `string`
+  - subtitle?: `string`
+  - message?: `string`
+  - confirmLabel?: `string`
+  - cancelLabel?: `string`
+  - default?: `boolean`
+    - `true`: Confirm is highlighted first. Default: Cancel.
+  - canCancel?: `boolean`
+    - Default `true`.
+
+**Returns**
+
+- yes: `boolean`
+- reason?: `string`
+  - `'cancelled'` for Cancel / Backspace / Escape, `'closed'`, `'menu_busy'`, `'not_in_thread'`...
+
+```lua
+CreateThread(function()
+    if Menu.confirm({ title = 'Sell vehicle', message = 'This cannot be undone.', confirmLabel = 'Sell' }) then
+        TriggerServerEvent('myres:sell')
+    end
+end)
+```
+
+## Menu.closeAll
+
+Closes this resource's menus and its pending dialog (which answers `nil, 'closed'`).
+
+```lua
+Menu.closeAll()
+```
+
+## Menu.isOpen
+
+True while this resource shows a menu or a dialog.
+
+```lua
+Menu.isOpen()
+```
+
+**Returns**
+
+- open: `boolean`
+
+## Menu.isAnyOpen
+
+True while any resource shows a menu or a dialog.
+
+```lua
+Menu.isAnyOpen()
+```
+
+**Returns**
+
+- open: `boolean`
+
+## Menu.current
+
+The menu currently drawn by this resource.
+
+```lua
+Menu.current()
+```
+
+**Returns**
+
+- menu?: `menu`
+
+## Menu.icons
+
+Every icon name an element can use, sorted.
+
+```lua
+Menu.icons()
+```
+
+**Returns**
+
+- names: `string[]`
+
+## Menu.addIcon
+
+Adds or replaces an icon for this resource's menus only.
+
+```lua
+Menu.addIcon(name, d, viewBox)
+```
+
+- name: `string`
+  - Letters, digits, `_` and `-`, 32 characters max.
+- d: `string`
+  - SVG path data.
+- viewBox?: `string`
+  - Default `'0 0 24 24'`.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_name'`, `'invalid_path'`, `'invalid_view_box'`
+
+## Menu.projection
+
+The menu tilt of a side, to match a NativeUI document of your own.
+
+```lua
+Menu.projection(side)
+```
+
+- side: `'left'`, `'right'`, `'center'`
+
+**Returns**
+
+- projection?: `{ origin, rotateX, rotateY, perspective }`
+  - `nil` when opx_menu is unavailable.
+
+## menu:setElements
+
+Replaces the rows of an open menu.
+
+```lua
+menu:setElements(elements, keepSelection)
+```
+
+- elements: `table[]`
+- keepSelection?: `boolean`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_elements'`
+
+## menu:updateElement
+
+Merges `patch` into the element with that `value` and redraws.
+
+```lua
+menu:updateElement(value, patch)
+```
+
+- value: `any`
+- patch: `table`
+
+**Returns**
+
+- found: `boolean`
+
+## menu:getElement
+
+```lua
+menu:getElement(value)
+```
+
+- value: `any`
+
+**Returns**
+
+- element?: `table`
+
+## menu:getSelected
+
+```lua
+menu:getSelected()
+```
+
+**Returns**
+
+- element?: `table`
+
+## menu:setSelected
+
+Moves the selection. Fires `onHover`, no sound.
+
+```lua
+menu:setSelected(target)
+```
+
+- target: `integer` or `any`
+  - Index, else element `value`.
+
+**Returns**
+
+- ok: `boolean`
+  - `false` for a separator or not found.
+
+## menu:setTitle
+
+```lua
+menu:setTitle(title, subtitle)
+```
+
+- title: `string`
+- subtitle?: `string`
+
+## menu:refresh
+
+Redraws after editing element tables directly.
+
+```lua
+menu:refresh()
+```
+
+## menu:isOpen
+
+```lua
+menu:isOpen()
+```
+
+**Returns**
+
+- open: `boolean`
+
+## menu:close
+
+Closes the menu and its children; the parent shows again.
+
+```lua
+menu:close()
+```
+
+## CloseAll
+
+Service export. Closes whatever menu is on screen, even one with `canClose = false` (death, logout).
+
+```lua
+Open77.exports.callSync('opx_menu', 'CloseAll')
+```
+
+**Returns**
+
+- ok: `true`
+
+## IsAnyOpen
+
+Service export. A menu or an opx_dialog form is on screen.
+
+```lua
+Open77.exports.callSync('opx_menu', 'IsAnyOpen')
+```
+
+**Returns**
+
+- open: `boolean`
+
+## GetOwner
+
+Service export. The resource that holds the menu screen.
+
+```lua
+Open77.exports.callSync('opx_menu', 'GetOwner')
+```
+
+**Returns**
+
+- resource?: `string`

@@ -1,0 +1,339 @@
+---
+title: Server
+---
+
+Every export is synchronous: `exports.opx_inventory:Name(...)` or `Open77.exports.callSync('opx_inventory', 'Name', ...)`. Pockets are the container `char:<citizenId>`, stashes `stash:<name>`.
+
+## Registering items
+
+An item exists only because a resource registered it. Register on your own start **and** on `onResourceStart` of the inventory provider (an inventory restart forgets every item).
+
+```lua
+local function provider()
+  local ok, name = pcall(Open77.exports.callSync, 'opx_core', 'GetProvider', 'inventory')
+  return ok and name or nil
+end
+
+local function registerItems()
+  local inv = provider()
+  if not inv then return end
+
+  exports[inv]:RegisterItem('lockpick', {
+    label = { en = 'Lockpick', fr = 'Crochet' },
+    description = 'Opens simple locks.',
+    weightG = 40,
+    maxStack = 10,
+  })
+  exports[inv]:RegisterUsable('lockpick', 'useLockpick')
+end
+
+exports('useLockpick', function(source, item, instanceId, meta)
+  -- your effect
+  return true -- consume one
+end)
+
+-- Exports are refused while a VM loads: register from onResourceStart.
+AddEventHandler('onResourceStart', function(name)
+  if name == GetCurrentResourceName() or name == provider() then
+    CreateThread(registerItems)
+  end
+end)
+```
+
+Item definition:
+
+- label: `string` or `{ [lang]: string }`
+  - 1 to 64 bytes. Language codes are 2 letters, 4 languages at most.
+- description?: `string` or `{ [lang]: string }`
+  - 1 to 200 bytes per language.
+- weightG: `integer`
+  - Weight of one, 0 to 1000000 grams.
+- unique?: `boolean`
+  - Each one is an instance with its own metadata. Never change it for an item players already hold.
+- maxStack?: `integer`
+- usable?: `boolean`
+  - Shows "Use". A `RegisterUsable` handler does this too.
+- showable?: `boolean`
+  - "Show" lets a nearby player read the card.
+- weapon?: `string`
+  - TweakDB record, e.g. `'Items.Preset_Lexington_Default'`. The item becomes a unique weapon (Equip / Unequip) with meta `{ serial, ammo, equipped }`.
+- ammo?: `string`
+  - Weapons only: id of the stack item its rounds come from.
+- characterMeta?: `boolean`
+  - An instance given without metadata is filled from the receiving character (name, citizenId, birthdate), like `id_card`.
+
+Any other key is refused with `invalid_definition`.
+
+## RegisterItem
+
+Adds or replaces an item in the catalogue, owned by the calling resource. When the owner stops, the item stays in the catalogue and only the claim goes.
+
+```lua
+exports.opx_inventory:RegisterItem(item, definition)
+```
+
+- item: `string`
+  - `[a-z0-9_]`, 48 characters max.
+- definition: `table`
+  - See [Registering items](#registering-items).
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'invalid_item'`, `'invalid_definition'`, `'item_taken'`, `'item_limit'` (64 per resource, 500 in all), `'export_call_required'`
+
+## UnregisterItem
+
+Removes an item the caller registered. Pockets and stashes keep what they hold; it weighs nothing and shows its id until registered again.
+
+```lua
+exports.opx_inventory:UnregisterItem(item)
+```
+
+- item: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'unknown_item'` or `'not_owner'`
+
+## RegisterUsable
+
+When a player uses `item`, the caller's export `exportName(source, item, instanceId, meta)` runs. Returning `true` consumes one. Dropped when the caller stops.
+
+```lua
+exports.opx_inventory:RegisterUsable(item, exportName)
+```
+
+- item: `string`
+- exportName: `string`
+  - Name of an export of your resource, 64 characters max.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'unknown_item'`, `'invalid_export'` or `'export_call_required'`
+
+## AddItem
+
+Creates items in the player's pockets. With `meta`, each one becomes an instance.
+
+```lua
+exports.opx_inventory:AddItem(source, item, count, meta)
+```
+
+- source: `number`
+- item: `string`
+- count?: `integer`
+  - Default `1`.
+- meta?: `table`
+  - Plain data, string keys, 2048 bytes encoded at most, depth 4 at most.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'not_loaded'`, `'invalid_player'`, `'unknown_item'`, `'invalid_count'`, `'invalid_meta'`, `'too_heavy'`, `'no_slot'`, `'max_stack'`, `'too_many'`
+
+## RemoveItem
+
+Destroys items. Without `instanceId`, the stack goes first, then instances (unequipped first). An equipped weapon leaves the hands at once.
+
+```lua
+exports.opx_inventory:RemoveItem(source, item, count, instanceId)
+```
+
+- source: `number`
+- item: `string`
+- count?: `integer`
+  - Default `1`. Forced to `1` with `instanceId`.
+- instanceId?: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'not_loaded'`, `'invalid_player'`, `'unknown_item'`, `'invalid_count'`, `'not_found'`, `'not_enough'`
+
+## GetItems
+
+Every row of the pockets.
+
+```lua
+exports.opx_inventory:GetItems(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- rows?: `table[]`
+  - item: `string`
+  - count: `integer`
+    - `1` for an instance.
+  - instance?: `string`
+  - meta?: `table`
+  - weightG?: `integer`
+    - Weight of one.
+- reason?: `'not_loaded'`
+
+## GetItem
+
+Total and instances of one item in the pockets.
+
+```lua
+exports.opx_inventory:GetItem(source, item)
+```
+
+- source: `number`
+- item: `string`
+
+**Returns**
+
+- item?: `{ item: string, count: integer, instances: { [instanceId]: meta } }`
+- reason?: `'not_loaded'` or `'unknown_item'`
+
+## HasItem
+
+```lua
+exports.opx_inventory:HasItem(source, item, count)
+```
+
+- source: `number`
+- item: `string`
+- count?: `integer`
+  - Default `1`.
+
+**Returns**
+
+- has: `boolean`
+
+## CanCarry
+
+Checks weight, slots and `maxStack` of the pockets.
+
+```lua
+exports.opx_inventory:CanCarry(source, item, count)
+```
+
+- source: `number`
+- item: `string`
+- count?: `integer`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'not_loaded'`, `'unknown_item'`, `'invalid_count'`, `'too_heavy'`, `'no_slot'`, `'max_stack'`
+
+## SetItemMeta
+
+Shallow merge into an instance of the player's pockets.
+
+```lua
+exports.opx_inventory:SetItemMeta(source, instanceId, metaPatch)
+```
+
+- source: `number`
+- instanceId: `string`
+- metaPatch: `table`
+  - `equipped`, `serial` and `ammo` are reserved. The merged metadata keeps the `AddItem` limits.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'not_loaded'`, `'invalid_player'`, `'not_found'`, `'invalid_meta'`, `'reserved_key'`
+
+## GiveItemTo
+
+Moves items from one player's pockets to another's in one step. No distance check.
+
+```lua
+exports.opx_inventory:GiveItemTo(source, target, item, count, instanceId)
+```
+
+- source: `number`
+- target: `number`
+- item: `string`
+- count?: `integer`
+- instanceId?: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'invalid_player'`, `'not_loaded'`, `'target_not_loaded'`, `'invalid_target'`, `'not_found'`, `'not_enough'`, `'target_too_heavy'`, `'target_no_slot'`, `'target_max_stack'`
+
+## GiveCash
+
+Moves cash (`Config.cash.account`) between two players through opx_core, all or nothing. No distance check.
+
+```lua
+exports.opx_inventory:GiveCash(source, target, amount)
+```
+
+- source: `number`
+- target: `number`
+- amount: `integer`
+  - 1 to `Config.cash.max`.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'invalid_player'`, `'disabled'`, `'invalid_amount'`, `'same_player'`, `'not_loaded'`, `'target_not_loaded'`, `'insufficient_funds'`, `'unknown_account'`, `'core_unavailable'`
+
+## OpenStash
+
+Opens `stash:<name>` for the player while they stay within `Config.stash.maxDistance` of where it opened. Your resource decides who may open it.
+
+```lua
+exports.opx_inventory:OpenStash(source, name, options)
+```
+
+- source: `number`
+- name: `string`
+  - `[a-z0-9_.-]`, 48 characters max.
+- options?: `table`
+  - label?: `string`
+  - capacityG?: `integer`
+    - Default `Config.stash.capacityG`.
+  - slots?: `integer`
+    - 1 to 200, default `Config.stash.slots`.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_loaded'`, `'not_ready'`, `'invalid_player'` or `'invalid_name'`
+
+```lua
+exports.opx_inventory:OpenStash(source, 'police_evidence', { label = 'Evidence', slots = 100 })
+```
+
+## GetItemDefinition
+
+A copy of the catalogue entry.
+
+```lua
+exports.opx_inventory:GetItemDefinition(item)
+```
+
+- item: `string`
+
+**Returns**
+
+- definition?: `table`
+  - item, label, description?, weightG, unique, usable, maxStack?, weapon (`boolean`), showable, resource
+
+## GetItemNames
+
+```lua
+exports.opx_inventory:GetItemNames()
+```
+
+**Returns**
+
+- names: `string[]`
+  - Sorted ids of the whole catalogue.

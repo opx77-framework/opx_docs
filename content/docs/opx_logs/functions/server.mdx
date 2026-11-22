@@ -1,0 +1,58 @@
+---
+title: Server
+---
+
+Both exports are synchronous. Find the provider with `exports.opx_core:GetProvider('logs')` instead of naming `opx_logs`.
+
+## Log
+
+Writes one row. The writer recorded is the calling resource. Rows are flushed to the table every `Config.flushSeconds`.
+
+```lua
+exports.opx_logs:Log(category, action, message, options)
+```
+
+- category: `string`
+  - `^[a-z0-9_.:-]+$`, 1 to 24 bytes.
+- action: `string`
+  - `^[a-z0-9_.:-]+$`, 1 to 48 bytes.
+- message: `string`
+  - Cut to 255 bytes, control characters removed.
+- options?: `table`
+  - source?: `number` (the player the row is about: citizen id, user id and name are filled in)
+  - citizenId?: `string` (wins over the one of `source`)
+  - data?: `table` (strings, booleans and finite numbers, depth 4, up to 2 KiB as JSON)
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_category'`, `'invalid_action'`, `'invalid_message'`, `'invalid_options'`, `'invalid_source'`, `'invalid_citizen_id'`, `'invalid_data'`
+
+```lua
+local logs = exports.opx_core:GetProvider('logs')
+if logs then
+  pcall(Open77.exports.callSync, logs, 'Log', 'drugs', 'sell', 'Sold 3 bags', { source = source, data = { count = 3 } })
+end
+```
+
+## GetRecent
+
+Newest rows kept in memory (`Config.memoryRows`), newest first. Older rows: query the `opx_logs` table.
+
+```lua
+exports.opx_logs:GetRecent(filter)
+```
+
+- filter?: `table`
+  - category?: `string`
+  - citizenId?: `string`
+  - limit?: `number` (1 to 100, default 50)
+
+**Returns**
+
+- rows: `table[]`
+  - stamp: `string` (`'YYYY-MM-DDTHH:MM:SSZ'`, UTC)
+  - createdAt: `number` (unix seconds)
+  - category, action, resource, message: `string`
+  - citizenId?, userId?, name?: `string`
+  - data?: `string` (JSON)

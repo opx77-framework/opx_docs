@@ -1,0 +1,83 @@
+---
+title: Client
+---
+
+Read from the last server snapshot, without a callback: display only, the server checks again. Before the pockets load and after `opx:playerUnloaded` they answer `0`, `false` or an empty table.
+
+## GetItemCount
+
+Total of an item in the pockets (stack and instances).
+
+```lua
+exports.opx_inventory:GetItemCount(item)
+```
+
+- item: `string`
+
+**Returns**
+
+- count: `integer`
+
+## HasItem
+
+```lua
+exports.opx_inventory:HasItem(item, count)
+```
+
+- item: `string`
+- count?: `integer`
+  - Default `1`.
+
+**Returns**
+
+- has: `boolean`
+
+## GetItems
+
+Totals per item, sorted by item, no metadata.
+
+```lua
+exports.opx_inventory:GetItems()
+```
+
+**Returns**
+
+- items: `{ item: string, count: integer }[]`
+
+## GetItemNames
+
+```lua
+exports.opx_inventory:GetItemNames()
+```
+
+**Returns**
+
+- names: `string[]`
+  - Sorted ids of the catalogue.
+
+## GetItemLabel
+
+Label of an item in the menu's language.
+
+```lua
+exports.opx_inventory:GetItemLabel(item)
+```
+
+- item: `string`
+
+**Returns**
+
+- label?: `string`
+  - `nil` when the item is not in the catalogue.
+
+## GetItemDescription
+
+```lua
+exports.opx_inventory:GetItemDescription(item)
+```
+
+- item: `string`
+
+**Returns**
+
+- description?: `string`

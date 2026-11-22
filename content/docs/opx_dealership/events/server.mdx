@@ -1,0 +1,29 @@
+---
+title: Server
+---
+
+### opx:dealership:sold
+
+After every sale (dealer or self-service), once the money moved and the owned car exists.
+
+```lua
+AddEventHandler('opx:dealership:sold', function(sellerSource, customerSource, record, plate, price) end)
+```
+
+- sellerSource: `integer` or `false`
+  - `false` for a self-service purchase.
+- customerSource: `integer`
+- record: `string`
+- plate: `string`
+- price: `integer`
+
+### opx:dealership:duty
+
+A `cardealer` went on or off duty (desk, staff `setjob`, job change, `Config.dutyOffOnLoad`).
+
+```lua
+AddEventHandler('opx:dealership:duty', function(source, onDuty) end)
+```
+
+- source: `integer`
+- onDuty: `boolean`

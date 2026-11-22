@@ -1,0 +1,46 @@
+---
+title: Client
+---
+
+Both are async: call them from a thread.
+
+```lua
+local skin = Open77.exports.callSync('opx_core', 'GetProvider', 'skin')
+```
+
+## GetGarments
+
+Garments of a slot sorted by label. The first call per slot and family builds the list.
+
+```lua
+Open77.exports.call(skin, 'GetGarments', slot, offset, limit, family):await()
+```
+
+- slot: `string`
+  - `'Head'`, `'Face'`, `'InnerChest'`, `'OuterChest'`, `'Legs'`, `'Feet'`, `'Outfit'`
+- offset?: `number` default `0`
+- limit?: `number` 1 to 60, default `60`
+- family?: `'male'` or `'female'` default: the local body's
+
+**Returns**
+
+- garments?: `table`
+  - total: `number` garments in the whole list
+  - items: `{ record: string, label: string }[]`
+- reason?: `'invalid_slot'`, `'invalid_range'` or another reason
+
+## FindGarment
+
+1-based position of a record in the `GetGarments` order, or `nil`.
+
+```lua
+Open77.exports.call(skin, 'FindGarment', slot, record, family):await()
+```
+
+- slot: `string`
+- record: `string`
+- family?: `'male'` or `'female'`
+
+**Returns**
+
+- position?: `number`

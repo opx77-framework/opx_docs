@@ -1,0 +1,52 @@
+---
+title: opx_garage
+description: Garages for owned cars, plus an impound lot.
+---
+
+<ResourceLinks repo="opx_garage" />
+
+Take owned cars out and store them at garage points. Impounded cars wait at the impound lot until the owner pays a fee. The cars are opx_core's owned vehicles: a car's garage is the `garage` column of `opx_vehicles`.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_garage.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_garage"
+```
+
+No table of its own. Grant staff the ACL right `command.impound`.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.garages = { { name = 'afterlife', label = 'Afterlife street lot', type = 'public', x = -1408.0, y = 960.0, z = 23.5, radius = 3.0, bucket = 0,
+  spawns = { { x = -1398.0, y = 953.0, z = 23.5, heading = 90.0 } } } } -- never rename a garage that holds cars
+Config.key = 'E'      -- rebindable by players
+Config.shared = true  -- stored cars come out at any public garage
+Config.warp = false   -- seat the owner when the car comes out
+Config.impound = { fee = 500, feeSociety = false, selfRecover = true }
+Config.commands = { impound = 'impound' } -- false = no command
+Config.versionCheck = true
+```
+
+## Usage
+
+- `E` at a garage point: take out, store, or send a car left elsewhere to the impound.
+- Impound lot: take a car out for `Config.impound.fee` (bank first, else cash).
+- `/impound [plate]`: staff. Without a plate: the car you sit in, else the nearest one.

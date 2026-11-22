@@ -15,16 +15,3 @@ export const gitConfig = {
   repo: "opx_docs",
   branch: "main",
 };
-
-/** Where the source of a generated page lives, for the "Edit on GitHub" link. */
-export function sourceUrl(pagePath: string): string {
-  const resource = pagePath.match(/^resources\/(opx_[a-z0-9_]+)\.md$/);
-  if (resource) return `https://github.com/${org}/${resource[1]}/blob/main/README.md`;
-  const files: Record<string, string> = {
-    "index.md": "README.md",
-    "architecture.md": "docs/ARCHITECTURE.md",
-    "economy.md": "docs/ECONOMY.md",
-  };
-  const file = files[pagePath] ?? "";
-  return `https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/${file}`;
-}

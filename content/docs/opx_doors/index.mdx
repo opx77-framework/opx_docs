@@ -1,0 +1,58 @@
+---
+title: opx_doors
+description: Lockable doors with keys by job grade, citizen id or staff right.
+---
+
+<ResourceLinks repo="opx_doors" />
+
+Doors declared in `config.lua`, locked or not. Key holders (job from a grade, citizen ids, staff) walk through and lock / unlock them; everybody else cannot. The state survives restarts.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- open77_elevators
+- open77_doors
+
+Optional: a `target` provider such as [opx_target](/docs/opx_target) for the eye options. Without open77_doors running, opx_doors does nothing.
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_doors.git
+```
+
+### Start order [step]
+
+```jsonc
+"open77_elevators",
+"open77_doors",
+"opx_core",
+"opx_doors"
+```
+
+The `opx_doors` table is created at start when `Config.persist = true`. Grant staff `command.doorid` and `command.opx_doors`.
+
+### Config [step]
+
+Everything is in `config.lua`. The shipped config has no door: add them with `/doorid`.
+
+```lua
+Config.doors = {
+  { id = '0xFC85EAE29622BAC2', label = 'Clinic back door', x = 0.0, y = 0.0, z = 0.0, bucket = 0,
+    locked = true, jobs = { traumateam = 0 }, citizens = {}, onDutyOnly = false, hardLock = false, autoClose = true },
+} -- jobs: job name = minimum grade; hardLock: nobody passes, key holders included
+Config.key = false                       -- e.g. 'L' to toggle the nearest door
+Config.persist = true                    -- keep lock states across restarts
+Config.staffRight = 'command.opx_doors'  -- key to every door
+Config.toggleDistance = 3.0
+Config.versionCheck = true
+```
+
+## Usage
+
+- Eye on a door, key holder: Lock / Unlock.
+- `Config.key` (off by default): toggle the nearest door.
+- `/doorid`: staff. Shows the nearest door id; F8 prints a line to paste in `Config.doors`, then restart opx_doors.
+- An open door lets anybody follow: keep `autoClose = true`.

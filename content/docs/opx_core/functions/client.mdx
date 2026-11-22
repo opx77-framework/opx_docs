@@ -1,0 +1,328 @@
+---
+title: Client
+---
+
+The client library runs in your resource. Declare `dependency "opx_core"` and the `network.events` permission in `open77.lua`.
+
+```lua
+local OPX = require('@opx_core')
+```
+
+## GetPlayerData
+
+PlayerData of the local character (same shape as the server `GetPlayer`).
+
+```lua
+OPX.GetPlayerData()
+```
+
+**Returns**
+
+- data?: `table`
+
+## IsLoaded
+
+```lua
+OPX.IsLoaded()
+```
+
+**Returns**
+
+- loaded: `boolean`
+
+## GetMoney
+
+```lua
+OPX.GetMoney(account)
+```
+
+- account: `string`
+
+**Returns**
+
+- balance: `number` (`0` when nothing is loaded or the account is unknown)
+
+## GetJob
+
+```lua
+OPX.GetJob()
+```
+
+**Returns**
+
+- job?: `table` (name, label, grade, gradeName, gradeLabel, salary, onDuty, type?, available)
+
+## GetMetadata
+
+```lua
+OPX.GetMetadata(key)
+```
+
+- key?: `string`
+  - Without a key, the whole table.
+
+**Returns**
+
+- value: `any` (`nil` when nothing is loaded)
+
+## OnPlayerLoaded
+
+Runs on every load, and once right away when a character is already loaded.
+
+```lua
+OPX.OnPlayerLoaded(fn)
+```
+
+- fn: `fun(data: table)`
+
+**Returns**
+
+- remove: `fun()`
+
+```lua
+OPX.OnPlayerLoaded(function(data)
+  print(data.firstname, data.job.name)
+end)
+```
+
+## OnPlayerUnloaded
+
+Relog, character switch, and `opx_core` stopping.
+
+```lua
+OPX.OnPlayerUnloaded(fn)
+```
+
+- fn: `fun()`
+
+**Returns**
+
+- remove: `fun()`
+
+## OnPlayerData
+
+Every PlayerData update.
+
+```lua
+OPX.OnPlayerData(fn)
+```
+
+- fn: `fun(key: string, value: any)`
+  - key: `'accounts'`, `'job'`, `'metadata'`, `'isNew'`, `'family'`
+
+**Returns**
+
+- remove: `fun()`
+
+## OnJobChanged
+
+New job or grade, duty on or off, the job registered or unregistered. Not called on load.
+
+```lua
+OPX.OnJobChanged(fn)
+```
+
+- fn: `fun(job: table, previous?: table)`
+
+**Returns**
+
+- remove: `fun()`
+
+## OnMoneyChanged
+
+Once per account whose balance changed. Not called on load.
+
+```lua
+OPX.OnMoneyChanged(fn)
+```
+
+- fn: `fun(account: string, balance: number, delta: number)`
+
+**Returns**
+
+- remove: `fun()`
+
+## HasJob
+
+Local mirror of the server `HasJob`. UX only: the server checks again.
+
+```lua
+OPX.HasJob(name, minGrade, onDutyOnly)
+```
+
+- name: `string`
+- minGrade?: `number`
+- onDutyOnly?: `boolean`
+
+**Returns**
+
+- hasJob: `boolean`
+
+## HasJobType
+
+Local mirror of the server `HasJobType`. UX only.
+
+```lua
+OPX.HasJobType(jobType, onDutyOnly)
+```
+
+- jobType: `string`
+- onDutyOnly?: `boolean`
+
+**Returns**
+
+- hasJob: `boolean`
+
+## Notify
+
+```lua
+OPX.Notify(message, type, duration, title, options)
+```
+
+- message: `string`
+- type?: `'info'`, `'success'`, `'warning'`, `'error'`
+- duration?: `number` (ms, `nil` = provider default)
+- title?: `string`
+- options?: `table`
+  - id?: `string` or `number`
+  - persist?: `boolean`
+
+**Returns**
+
+- ok: `boolean`
+
+## DismissNotification
+
+Removes a line this resource showed with `options.id` (server or client side).
+
+```lua
+OPX.DismissNotification(id)
+```
+
+- id: `string` or `number`
+
+**Returns**
+
+- removed: `boolean`
+
+## ClearNotifications
+
+```lua
+OPX.ClearNotifications()
+```
+
+**Returns**
+
+- count: `number` or `false` (provider has no `Clear` export)
+
+## FormatMoney
+
+Amount in opx_core's language: `"€$ 1,250"` (en), `"1 250 €$"` (fr).
+
+```lua
+OPX.FormatMoney(amount)
+```
+
+- amount: `number`
+
+**Returns**
+
+- text: `string`
+
+## GetAccountLabel
+
+```lua
+OPX.GetAccountLabel(account)
+```
+
+- account: `string`
+
+**Returns**
+
+- label: `string` (`"Cash"`; the account name when it has no label)
+
+## GetProvider
+
+```lua
+OPX.GetProvider(slot)
+```
+
+- slot: `string` (see the server `GetProvider`)
+
+**Returns**
+
+- resource?: `string`
+
+## SetHudVisible
+
+Shows or hides the HUD provider.
+
+```lua
+OPX.SetHudVisible(visible)
+```
+
+- visible: `boolean`
+
+**Returns**
+
+- ok: `boolean` (`false` when there is no HUD provider)
+
+## TriggerServerCallback
+
+Asks a callback registered with the server `RegisterCallback`.
+
+```lua
+OPX.TriggerServerCallback(name, cb, ...)
+```
+
+- name: `string`
+- cb: `fun(...)`
+  - On failure `cb(nil, err)`: `'timeout'`, `'rate_limited'`, `'unknown_callback'`, `'callback_failed'`, `'send_failed'`
+
+Timeout is `OPX.callbackTimeout` (default `10000` ms).
+
+## AwaitCallback
+
+Same as `TriggerServerCallback`, but yields. Call it from a thread.
+
+```lua
+OPX.AwaitCallback(name, ...)
+```
+
+- name: `string`
+
+**Returns**
+
+- `...`: the export's results, or `nil, err`
+
+```lua
+CreateThread(function()
+  local fines, err = OPX.AwaitCallback('myres:getFines', 1)
+  if not fines then print(err) end
+end)
+```
+
+## Locale
+
+Translator over your own `locales/<lang>.json`, in opx_core's language. List `"locales/*.json"` in your `files`.
+
+```lua
+local T = OPX.Locale()
+T('paid', { amount = 50 })
+```
+
+**Returns**
+
+- translate: `fun(key: string, ...): string`
+  - `{name}` placeholders with a table, else `string.format`. Missing keys fall back to English, then to the key.
+
+## Exports
+
+The same data is also reachable without the library:
+
+```lua
+Open77.exports.callSync('opx_core', 'GetPlayerData')
+```
+
+- `GetPlayerData()`, `IsPlayerLoaded()`, `Notify(message, type?, duration?, title?, options?)`, `DismissNotification(id)`, `ClearNotifications()`, `GetProvider(slot)`, `SetHudVisible(visible)`, `FormatMoney(amount)`, `GetAccountLabel(account)`
+- `GetLocale()`: `'en'` or `'fr'`

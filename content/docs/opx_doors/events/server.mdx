@@ -1,0 +1,16 @@
+---
+title: Server
+---
+
+### opx:doors:lockChanged
+
+A door's lock state changed (player toggle or `SetLocked`).
+
+```lua
+AddEventHandler('opx:doors:lockChanged', function(doorId, locked, bySource) end)
+```
+
+- doorId: `string`
+- locked: `boolean`
+- bySource?: `integer`
+  - `nil` for `SetLocked`.

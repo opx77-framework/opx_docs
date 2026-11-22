@@ -1,0 +1,14 @@
+---
+title: Client
+---
+
+### option.event
+
+Raised in your resource's VM when an option with `event = '<name>'` is selected (library registrations only). The name is yours.
+
+```lua
+AddEventHandler('myres:target:search', function(ctx) end)
+```
+
+- ctx: `table`
+  - See [ctx](/docs/opx_target/functions/client#ctx).

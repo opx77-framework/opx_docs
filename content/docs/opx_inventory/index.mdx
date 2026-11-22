@@ -1,0 +1,58 @@
+---
+title: opx_inventory
+description: Pockets, stashes, unique items with metadata and weapons, in an opx_menu menu.
+---
+
+<ResourceLinks repo="opx_inventory" />
+
+Inventory shown in opx_menu: pockets, stashes, unique items with metadata, weapons, give items or cash, show your ID card. It has no item list: each item is registered by the resource that gives it a meaning (opx_inventory registers only `id_card`).
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+- [opx_dialog](/docs/opx_dialog)
+- open77_weapons `>= 0.1.0`
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_inventory.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_dialog",
+"open77_weapons",
+"opx_inventory"
+```
+
+The `opx_inventories` table is created at start. Staff commands need `command.<name>` in `acl.jsonc` (the `admin` role's `command.*` covers them).
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.key = 'I'                                       -- rebindable by players
+Config.pockets = { capacityG = 30000, slots = 40 }     -- keep slots at 60 or less
+Config.stash = { capacityG = 100000, slots = 50, maxDistance = 4.0 }
+Config.cash = { enabled = true, account = 'money', max = 1000000 }
+Config.weapons = { slots = { 1, 2, 3 }, syncSeconds = 60, stripUnknown = true }
+Config.starterItems = { { item = 'id_card' }, { item = 'water', count = 2 } } -- false = none
+Config.versionCheck = true
+```
+
+## Usage
+
+- `I`: open the inventory. Per item: Use, Equip, Give, Show, Inspect, Destroy.
+- Targeting eye on a player: Give item, Give cash, Show ID.
+- `giveitem <id|me> <item> [count] [key=value ...]`
+- `giveweapon <id|me> <weapon> [ammo]`
+- `removeitem <id|me> <item> [count]`
+- `clearinventory <id|me>`, `inventory <id>` (read-only view)

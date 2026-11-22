@@ -1,0 +1,54 @@
+---
+title: opx_rental
+description: Car rental at a desk, with a deposit given back on return.
+---
+
+<ResourceLinks repo="opx_rental" />
+
+Rent a car at a desk for a limited time. The player pays the price plus a deposit and gets the deposit back when he returns the car to any desk. Running rentals live in memory only.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+
+Optional: a `vehiclekeys` provider such as [opx_vehiclekeys](/docs/opx_vehiclekeys) gives the renter a temporary key.
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_rental.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_rental"
+```
+
+A restart of opx_rental ends the running rentals without refunding the deposits.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.points = { { name = 'arrivals', label = 'Vehicle rental - Arrivals', x = -1596.0, y = -2340.8, z = 43.25, radius = 2.5, bucket = 0,
+  spawns = { { x = -1590.0, y = -2340.8, z = 43.25, heading = 140.0 } } } } -- placeholder: measure it in game
+Config.vehicles = { { record = 'Vehicle.v_sportbike2_arch_player', label = 'Arch Nazare', price = 150, minutes = 30 } }
+Config.deposit = 200                -- 0 = none
+Config.payFrom = { 'money', 'bank' } -- first account holding price + deposit pays
+Config.disconnectGraceSeconds = 120 -- then the car is removed and the deposit lost
+Config.plate = 'RENT'               -- plates RENT 1, RENT 2...
+Config.versionCheck = true
+```
+
+## Usage
+
+- `E` at a desk: pick a car, it appears on the bay, locked for everybody but the renter.
+- `E` at any desk with the car parked close and empty: return it, the deposit comes back.
+- One rental at a time. When time is up the car is taken back once empty and the deposit is lost.

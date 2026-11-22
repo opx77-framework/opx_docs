@@ -1,0 +1,40 @@
+---
+title: Server
+---
+
+## exampleLookupPlate
+
+Export behind the server callback `opx_example:lookupPlate`. `source` is set by opx_core.
+
+```lua
+local OPX = require('@opx_core')
+local result, reason = OPX.AwaitCallback('opx_example:lookupPlate', plate)
+```
+
+- plate: `string` (1 to 10 letters, digits, spaces or dashes)
+
+**Returns**
+
+- result: `table` or `false`
+  - plate: `string` (upper-case)
+  - owner: `string` (`"Firstname Lastname"`)
+  - record: `string`
+- reason?: `'not_on_duty'`, `'invalid_plate'`, `'not_found'`
+  - `nil, err` when the callback itself failed (`'timeout'`, `'rate_limited'`...).
+
+## exampleUseBadge
+
+Usable handler the inventory calls when a player uses `Config.item.name`. Shows the badge to the players nearby.
+
+```lua
+exports.opx_example:exampleUseBadge(source, item, instanceId, meta)
+```
+
+- source: `number`
+- item: `string`
+- instanceId?: `string`
+- meta?: `{ name?: string, number?: string }`
+
+**Returns**
+
+- consumed: `false` (the badge is kept)

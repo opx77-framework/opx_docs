@@ -1,0 +1,33 @@
+---
+title: Client
+---
+
+### open77:chat:visibility
+
+The composer opened or closed.
+
+```lua
+AddEventHandler('open77:chat:visibility', function(open) end)
+```
+
+- open: `boolean`
+
+### chat:commandSubmitted
+
+A slash line that is not a channel, before it runs.
+
+```lua
+AddEventHandler('chat:commandSubmitted', function(raw, tokens) end)
+```
+
+- raw: `string`
+- tokens: `string[]`
+
+## Handled events
+
+```lua
+TriggerEvent('chat:open')        -- also 'open77:chat:open'
+TriggerEvent('chat:close')
+TriggerEvent('chat:addMessage', message)
+TriggerEvent('open77:chat:requestVisibility') -- answers with open77:chat:visibility
+```

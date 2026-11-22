@@ -1,0 +1,65 @@
+---
+title: Client
+---
+
+Prefer [opx_core](/docs/opx_core)'s `OPX.Notify` (client) or `exports.opx_core:Notify(source, ...)` (server): they reach whichever resource fills the `notify` slot. Call these exports by name for `options`, `Dismiss` and `Clear`.
+
+## Notify
+
+Shows a notification line.
+
+```lua
+Open77.exports.callSync('opx_notification', 'Notify', message, type, duration, title, options)
+```
+
+- message: `string`
+  - Up to 300 characters, longer is cut with `...`.
+- type?: `'info'`, `'success'`, `'warning'`, `'error'`
+  - Default `'info'`.
+- duration?: `integer`
+  - ms, clamped to `1000` to `60000`. Default `Config.notify.durations[type]` or `Config.notify.duration`.
+- title?: `string`
+  - Up to 64 characters, shown in caps before the message.
+- options?: `table`
+  - id?: `string` or `number`
+    - Up to 160 characters. A later `Notify` with the same id rewrites that line in place.
+  - persist?: `boolean`
+    - No lifetime: the line stays until `Dismiss(id)`, `Clear()` or the feed pushes it out.
+
+**Returns**
+
+- shown: `boolean`
+- reason?: `'invalid_message'`, `'unavailable'`
+
+```lua
+local N = function(...) return Open77.exports.callSync('opx_notification', ...) end
+N('Notify', 'Downloading 0 %', 'info', nil, 'Netrunner', { id = 'dl', persist = true })
+N('Notify', 'Download complete', 'success', nil, 'Netrunner', { id = 'dl' })
+```
+
+## Dismiss
+
+Removes the line this resource showed with `options.id = id`.
+
+```lua
+Open77.exports.callSync('opx_notification', 'Dismiss', id)
+```
+
+- id: `string` or `number`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_id'`, `'not_found'`
+
+## Clear
+
+Removes every line on screen, persistent ones included, whoever showed them.
+
+```lua
+Open77.exports.callSync('opx_notification', 'Clear')
+```
+
+**Returns**
+
+- removed: `integer`

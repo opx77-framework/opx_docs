@@ -1,0 +1,55 @@
+---
+title: opx_billing
+description: Employees bill players; the player pays when he wants and the money goes to the job's society.
+---
+
+<ResourceLinks repo="opx_billing" />
+
+An employee bills a player for a service; the player pays when he wants and the money goes to the job's society account (opx_core). Nothing is collected by force.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+- [opx_dialog](/docs/opx_dialog)
+
+Optional: [opx_target](/docs/opx_target) (eye option), [opx_society](/docs/opx_society) (boss check).
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_billing.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_dialog",
+"opx_billing"
+```
+
+The `opx_bills` table is created at start. Every job in `Config.jobs` must be registered in opx_core.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.jobs = { traumateam = { minGrade = 0, onDuty = true } } -- jobs that may bill
+Config.maxAmount = 100000             -- highest amount of one bill
+Config.maxUnpaid = 20                 -- unpaid bills one character may hold
+Config.payFrom = { 'bank', 'money' }  -- first account holding the whole amount pays
+Config.commission = 0.0               -- issuer's share, 0 to 0.5
+Config.keepPaidDays = 30              -- 0 = keep paid bills forever
+Config.versionCheck = true
+```
+
+## Usage
+
+- `/bill <playerId>` or Bill in the targeting eye: amount and reason.
+- `/bills`: list and pay your unpaid bills.
+- `/bills`, "Bills of `<job>`": an employee sees his job's unpaid bills; the boss may cancel one.

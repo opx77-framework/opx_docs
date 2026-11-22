@@ -1,0 +1,52 @@
+---
+title: opx_logs
+description: Server journal in the opx_logs table, read in game with /logs.
+---
+
+<ResourceLinks repo="opx_logs" />
+
+Server journal: money moves, job changes, deaths, vehicles, staff actions, purchases and bills become rows in the `opx_logs` table. Provider of the `logs` slot. No event is raised when a row is written.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_menu](/docs/opx_menu)
+- [opx_core](/docs/opx_core) (optional: names and citizen ids)
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_logs.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_logs"
+```
+
+Before the resources it records. The `opx_logs` table is created at start; without a database, rows stay in memory only.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.retentionDays = 30 -- 0 = keep everything
+Config.console = false    -- also print each row in the console
+Config.command = 'logs'   -- false = no command
+Config.sources = { money = true, admin = true, chat = false } -- built-in listeners, false turns one off
+Config.money = { minAmount = 100, ignoreReasons = { '^paycheck:' } }
+Config.versionCheck = true
+```
+
+## Usage
+
+`/logs` needs the ACL right `command.logs` (the console always may).
+
+- `/logs`: the 30 newest rows.
+- `/logs money`, `/logs death 50`: one category, up to 50 rows.
+- `/logs AB123456`: the rows about one character.

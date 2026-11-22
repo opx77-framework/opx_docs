@@ -1,0 +1,1040 @@
+---
+title: Server
+---
+
+Every export is synchronous, except `GetCharacters`, `CreateCharacter`, `DeleteCharacter` and `LoadCharacter`, which wait for the account when it is not cached yet (check `IsAccountReady`, or call them after `opx:playerLoaded`). A player is loaded between `opx:playerLoaded` and `opx:playerUnloaded`; outside that window source-based exports answer `'not_loaded'`.
+
+## GetPlayer
+
+PlayerData of a loaded character.
+
+```lua
+exports.opx_core:GetPlayer(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- data?: `table`
+  - source: `number`
+  - identifier: `string` (`"license:<hex>"`)
+  - citizenId: `string` (`"AB123456"`)
+  - firstname, lastname: `string`
+  - birthdate: `string` (`'YYYY-MM-DD'`)
+  - family: `'male'` or `'female'`
+  - accounts: `table<string, number>` (`{ money = 500, bank = 5000 }`)
+  - job: `table` (see [SetJob](#setjob))
+  - metadata: `table<string, any>` (includes `health`, fraction 0..1)
+  - position?: `{ x, y, z, heading }`
+  - isNew: `boolean` (true until `SetCharacterCreated`)
+
+## GetPlayerByCitizenId
+
+PlayerData of the loaded character with that citizen id.
+
+```lua
+exports.opx_core:GetPlayerByCitizenId(citizenId)
+```
+
+- citizenId: `string`
+
+**Returns**
+
+- data?: `table` (same as `GetPlayer`)
+
+## GetPlayers
+
+Sources with a loaded character, sorted.
+
+```lua
+exports.opx_core:GetPlayers()
+```
+
+**Returns**
+
+- sources: `number[]`
+
+## GetLoadedPlayers
+
+PlayerData of every loaded character, sorted by source.
+
+```lua
+exports.opx_core:GetLoadedPlayers()
+```
+
+**Returns**
+
+- players: `table[]`
+
+## IsPlayerLoaded
+
+```lua
+exports.opx_core:IsPlayerLoaded(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- loaded: `boolean`
+
+## GetIdentifier
+
+Account identifier of a connected player.
+
+```lua
+exports.opx_core:GetIdentifier(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- identifier?: `string` (`"license:<hex>"`)
+
+## GetCharacterInfo
+
+Any character, online or not.
+
+```lua
+exports.opx_core:GetCharacterInfo(citizenId)
+```
+
+- citizenId: `string`
+
+**Returns**
+
+- row?: `table`
+  - citizenId, identifier, firstname, lastname, birthdate: `string`
+  - online: `boolean`
+  - source?: `number` (when online)
+
+## FindCharacters
+
+Exact citizen id, or `"firstname lastname"` containing `query` (case-insensitive). Online characters first.
+
+```lua
+exports.opx_core:FindCharacters(query, limit)
+```
+
+- query: `string`
+  - At least 2 characters.
+- limit?: `number`
+  - Default `20`, max `100`.
+
+**Returns**
+
+- rows: `table[]` (same shape as `GetCharacterInfo`)
+
+## GetAccounts
+
+Money accounts every character has (`Config.accounts`), in order.
+
+```lua
+exports.opx_core:GetAccounts()
+```
+
+**Returns**
+
+- accounts: `string[]` (`{ 'money', 'bank' }`)
+
+## GetMoney
+
+```lua
+exports.opx_core:GetMoney(source, account)
+```
+
+- source: `number`
+- account: `string`
+
+**Returns**
+
+- balance: `number` (`0` on error)
+- reason?: `'not_loaded'`, `'unknown_account'`
+
+## HasMoney
+
+```lua
+exports.opx_core:HasMoney(source, account, amount)
+```
+
+- source: `number`
+- account: `string`
+- amount: `number`
+
+**Returns**
+
+- enough: `boolean`
+
+## AddMoney
+
+```lua
+exports.opx_core:AddMoney(source, account, amount, reason)
+```
+
+- source: `number`
+- account: `string`
+- amount: `number`
+  - Integer above `0`; the new balance may not exceed `Config.maxBalance`.
+- reason?: `string`
+  - Up to 128 bytes, logged and passed to `opx:moneyChanged`. Use `'<resource>:<what>'`.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_loaded'`, `'unknown_account'`, `'invalid_amount'`
+
+```lua
+local ok, reason = exports.opx_core:AddMoney(source, 'money', 250, 'myjob:delivery')
+```
+
+## RemoveMoney
+
+```lua
+exports.opx_core:RemoveMoney(source, account, amount, reason)
+```
+
+- source: `number`
+- account: `string`
+- amount: `number`
+- reason?: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_loaded'`, `'unknown_account'`, `'invalid_amount'`, `'insufficient_funds'`
+
+## SetMoney
+
+```lua
+exports.opx_core:SetMoney(source, account, amount, reason)
+```
+
+- source: `number`
+- account: `string`
+- amount: `number`
+  - Integer, `0` allowed.
+- reason?: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_loaded'`, `'unknown_account'`, `'invalid_amount'`
+
+## TransferMoney
+
+Same account between two loaded characters, all or nothing. Raises `opx:moneyChanged` for both.
+
+```lua
+exports.opx_core:TransferMoney(fromSource, toSource, account, amount, reason)
+```
+
+- fromSource: `number`
+- toSource: `number`
+- account: `string`
+- amount: `number`
+- reason?: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_loaded'`, `'target_not_loaded'`, `'same_player'`, `'unknown_account'`, `'invalid_amount'`, `'insufficient_funds'`
+
+## MoveMoney
+
+Between two accounts of the same character (deposit `'money'` to `'bank'`, withdrawal the other way), all or nothing.
+
+```lua
+exports.opx_core:MoveMoney(source, fromAccount, toAccount, amount, reason)
+```
+
+- source: `number`
+- fromAccount: `string`
+- toAccount: `string`
+- amount: `number`
+- reason?: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_loaded'`, `'unknown_account'`, `'same_account'`, `'invalid_amount'`, `'insufficient_funds'`
+
+## GetSocietyMoney
+
+Society account of a registered job (`0` when it has no row yet).
+
+```lua
+exports.opx_core:GetSocietyMoney(job)
+```
+
+- job: `string`
+
+**Returns**
+
+- balance: `number`
+- reason?: `'unknown_job'`, `'db_error'`
+
+## AddSocietyMoney
+
+```lua
+exports.opx_core:AddSocietyMoney(job, amount, reason)
+```
+
+- job: `string`
+- amount: `number`
+- reason?: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'unknown_job'`, `'db_error'`, `'invalid_amount'`
+
+## RemoveSocietyMoney
+
+```lua
+exports.opx_core:RemoveSocietyMoney(job, amount, reason)
+```
+
+- job: `string`
+- amount: `number`
+- reason?: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'unknown_job'`, `'db_error'`, `'invalid_amount'`, `'insufficient_funds'`
+
+## PaySociety
+
+Moves `amount` from the player's cash (`'money'`) to the society, all or nothing.
+
+```lua
+exports.opx_core:PaySociety(source, job, amount, reason)
+```
+
+- source: `number`
+- job: `string`
+- amount: `number`
+- reason?: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_loaded'`, `'unknown_job'`, `'db_error'`, `'invalid_amount'`, `'insufficient_funds'`
+
+## RegisterJob
+
+Registers a job owned by the calling resource. Its jobs are dropped when it stops: register from `onResourceStart` for your own start and for `opx_core`'s.
+
+```lua
+exports.opx_core:RegisterJob(name, definition)
+```
+
+- name: `string`
+  - `^[a-z][a-z0-9_]{1,31}$`
+- definition: `table`
+  - label: `string` (up to 64 characters)
+  - grades: `table<number, { name: string, label: string, salary: number }>`
+    - Keys contiguous from `0`, 1 to 50 grades.
+  - defaultDuty?: `boolean` (duty when the job is given, default `false`)
+  - offDutyPay?: `boolean` (paid off duty, default `false`)
+  - type?: `string` (`'leo'`, `'ems'`, `'mechanic'`...)
+  - data?: `table` (JSON-able, up to 8 KiB)
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_name'`, `'invalid_definition'`, `'invalid_label'`, `'invalid_grades'`, `'invalid_type'`, `'invalid_data'`, `'job_taken'`
+
+```lua
+exports.opx_core:RegisterJob('police', {
+  label = 'NCPD',
+  type = 'leo',
+  grades = {
+    [0] = { name = 'cadet', label = 'Cadet', salary = 150 },
+    [1] = { name = 'officer', label = 'Officer', salary = 250 },
+  },
+})
+```
+
+## UnregisterJob
+
+Only the owning resource may remove a job.
+
+```lua
+exports.opx_core:UnregisterJob(name)
+```
+
+- name: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'unknown_job'`, `'not_owner'`, `'protected'`
+
+## GetJob
+
+A registered job.
+
+```lua
+exports.opx_core:GetJob(name)
+```
+
+- name: `string`
+
+**Returns**
+
+- job?: `table` (the `RegisterJob` definition plus `name` and `resource`)
+
+## GetJobs
+
+Every registered job, `unemployed` included.
+
+```lua
+exports.opx_core:GetJobs()
+```
+
+**Returns**
+
+- jobs: `table<string, table>` (same shape as `GetJob`)
+
+## SetJob
+
+```lua
+exports.opx_core:SetJob(source, name, grade)
+```
+
+- source: `number`
+- name: `string` (a registered job)
+- grade?: `number` (default `0`)
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_loaded'`, `'unknown_job'`, `'invalid_grade'`
+
+The player's `job` table then holds name, label, grade, gradeName, gradeLabel, salary, onDuty, type? and available (`false` while the job is not registered).
+
+## SetDuty
+
+```lua
+exports.opx_core:SetDuty(source, onDuty)
+```
+
+- source: `number`
+- onDuty: `boolean`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_loaded'`, `'invalid_duty'`, `'unknown_job'`
+
+## HasJob
+
+```lua
+exports.opx_core:HasJob(source, name, minGrade, onDutyOnly)
+```
+
+- source: `number`
+- name: `string`
+- minGrade?: `number`
+- onDutyOnly?: `boolean`
+
+**Returns**
+
+- hasJob: `boolean`
+
+## HasJobType
+
+Whether the player holds any registered job of that type.
+
+```lua
+exports.opx_core:HasJobType(source, jobType, onDutyOnly)
+```
+
+- source: `number`
+- jobType: `string` (`'leo'`, `'ems'`...)
+- onDutyOnly?: `boolean`
+
+**Returns**
+
+- hasJob: `boolean`
+
+## GetPlayersByJob
+
+```lua
+exports.opx_core:GetPlayersByJob(name, onDutyOnly)
+```
+
+- name: `string`
+- onDutyOnly?: `boolean`
+
+**Returns**
+
+- sources: `number[]` (sorted)
+
+## GetPlayersByJobType
+
+Holders of any registered job of that type (two police departments both count).
+
+```lua
+exports.opx_core:GetPlayersByJobType(jobType, onDutyOnly)
+```
+
+- jobType: `string`
+- onDutyOnly?: `boolean`
+
+**Returns**
+
+- sources: `number[]` (sorted, `{}` for a bad `jobType`)
+
+## GetMetadata
+
+```lua
+exports.opx_core:GetMetadata(source, key)
+```
+
+- source: `number`
+- key?: `string`
+  - Without a key, the whole table.
+
+**Returns**
+
+- value: `any`
+- reason?: `'not_loaded'`, `'invalid_key'`
+
+## SetMetadata
+
+```lua
+exports.opx_core:SetMetadata(source, key, value)
+```
+
+- source: `number`
+- key: `string` (up to 64 characters)
+- value: `any`
+  - JSON-able, up to 8 KiB; the whole table up to 40 KiB. `nil` removes the key.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_loaded'`, `'invalid_key'`, `'invalid_value'`
+
+## Notify
+
+Notification through the notify provider (the game's own toast when none runs).
+
+```lua
+exports.opx_core:Notify(source, message, type, duration, title, options)
+```
+
+- source: `number` (`-1` = everyone)
+- message: `string`
+- type?: `'info'`, `'success'`, `'warning'`, `'error'`
+- duration?: `number`
+  - Milliseconds, 500 to 60000. `nil` = provider default.
+- title?: `string`
+- options?: `table`
+  - id?: `string` or `number` (a line with the same id is updated in place)
+  - persist?: `boolean` (stays until dismissed)
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_source'`, `'invalid_message'`
+
+## NotifyLocale
+
+Notification written in the caller's `locales/<lang>.json`, translated by the caller's client. That client must `require('@opx_core')`.
+
+```lua
+exports.opx_core:NotifyLocale(source, key, params, type, duration, titleKey, options)
+```
+
+- source: `number` (`-1` = everyone)
+- key: `string`
+  - 1 to 64 bytes of letters, digits, `_ . : -`
+- params?: `table<string, string | number>`
+  - Values for `{name}` placeholders, up to 16 entries.
+- type?, duration?, options?: as `Notify`
+- titleKey?: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_source'`, `'invalid_key'`, `'invalid_params'`
+
+```lua
+exports.opx_core:NotifyLocale(source, 'paid', { amount = 50 }, 'success')
+```
+
+## RegisterCallback
+
+A server callback answered by the calling resource's export `exportName(source, ...)`. Clients ask it with `OPX.TriggerServerCallback` / `OPX.AwaitCallback`. Register from `onResourceStart` and again when `opx_core` restarts.
+
+```lua
+exports.opx_core:RegisterCallback(name, exportName)
+```
+
+- name: `string`
+  - `^[%w_%-%.:]+$`, up to 64 characters.
+- exportName: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_name'`, `'invalid_export'`
+
+```lua
+exports('getFines', function(source, page)
+  return { total = 3 }
+end)
+
+exports.opx_core:RegisterCallback('myres:getFines', 'getFines')
+```
+
+`source` is set by the server; validate every other argument.
+
+## UnregisterCallback
+
+Only the registering resource may remove it.
+
+```lua
+exports.opx_core:UnregisterCallback(name)
+```
+
+- name: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_found'`, `'not_owner'`
+
+## GetCharacters
+
+Characters of the player's account.
+
+```lua
+exports.opx_core:GetCharacters(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- list?: `table[]`
+  - citizenId, firstname, lastname, birthdate, family: `string`
+  - job: `table`
+  - accounts: `table<string, number>`
+  - lastPlayed: `number` (unix seconds)
+  - isNew: `boolean`
+- reason?: `'db_error'`
+
+## GetSlots
+
+```lua
+exports.opx_core:GetSlots(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- slots: `number`
+
+## CreateCharacter
+
+```lua
+exports.opx_core:CreateCharacter(source, info)
+```
+
+- source: `number`
+- info: `table`
+  - firstname: `string`
+  - lastname: `string`
+  - birthdate: `string` (`'YYYY-MM-DD'`)
+  - family?: `'male'` or `'female'` (default `'male'`)
+
+**Returns**
+
+- citizenId?: `string`
+- reason?: `'invalid_name'`, `'invalid_birthdate'`, `'invalid_family'`, `'no_slot'`, `'db_error'`
+
+## DeleteCharacter
+
+```lua
+exports.opx_core:DeleteCharacter(source, citizenId)
+```
+
+- source: `number`
+- citizenId: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_found'`, `'in_use'`, `'db_error'`
+
+## LoadCharacter
+
+```lua
+exports.opx_core:LoadCharacter(source, citizenId)
+```
+
+- source: `number`
+- citizenId: `string`
+
+**Returns**
+
+- data?: `table` (PlayerData)
+- reason?: `'not_found'`, `'in_use'`
+
+## UnloadCharacter
+
+```lua
+exports.opx_core:UnloadCharacter(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- ok: `true`
+
+## SaveCharacter
+
+```lua
+exports.opx_core:SaveCharacter(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_loaded'`
+
+## SetCharacterCreated
+
+Clears `isNew` once the character has been through the creator.
+
+```lua
+exports.opx_core:SetCharacterCreated(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_loaded'`
+
+## SetFamily
+
+Changes the loaded character's body family.
+
+```lua
+exports.opx_core:SetFamily(source, family)
+```
+
+- source: `number`
+- family: `'male'` or `'female'`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_loaded'`, `'invalid_family'`
+
+## ResetHealth
+
+Fills the player's health pool.
+
+```lua
+exports.opx_core:ResetHealth(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- ok: `boolean`
+
+## IsAccountReady
+
+Whether the account's characters are cached (the character exports will not wait).
+
+```lua
+exports.opx_core:IsAccountReady(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- ready: `boolean`
+
+## GetProvider
+
+The resource configured for a provider slot.
+
+```lua
+exports.opx_core:GetProvider(slot)
+```
+
+- slot: `string`
+  - `'notify'`, `'hud'`, `'creator'`, `'menu'`, `'dialog'`, `'target'`, `'weather'`, `'inventory'`, `'progress'`, `'medical'`, `'society'`, `'logs'`, `'vehiclekeys'`, `'skin'`
+
+**Returns**
+
+- resource?: `string` (`nil` when `false` or not running)
+
+```lua
+local inventory = exports.opx_core:GetProvider('inventory')
+if inventory then Open77.exports.callSync(inventory, 'AddItem', source, 'water', 1) end
+```
+
+## OpenCreator
+
+Opens the configured creator for a player. Then listen to `opx:creator:saved` / `opx:creator:closed`.
+
+```lua
+exports.opx_core:OpenCreator(source, options)
+```
+
+- source: `number`
+- options?: `table`
+  - mode?: `'creation'` or `'edit'` (default `'edit'`)
+  - canCancel?: `boolean` (default `true` in edit, `false` in creation)
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'no_provider'`, `'provider_error'`, or a reason of the provider
+
+## SpawnVehicle
+
+```lua
+exports.opx_core:SpawnVehicle(record, coords, heading, options)
+```
+
+- record: `string` (`'Vehicle.*'` record)
+- coords: `vector3` or `{ x, y, z, heading? }`
+- heading?: `number` (degrees)
+- options?: `table`
+  - props?: `table` (applied with `Open77.vehicles.setProperties`)
+  - plate?: `string` (A-Z 0-9 space -, 1 to 10, unique)
+  - bucket?: `number` (default: the warped player's)
+  - persistent?: `boolean` (never removed automatically)
+  - owner?: `string` (citizenId given the key exception)
+  - warp?: `number` (player seated as the driver)
+  - locked?: `boolean` (locked for everyone except the owner)
+
+**Returns**
+
+- vehicleId: `number` or `false`
+- reason?: `'not_ready'`, `'invalid_record'`, `'unknown_record'`, `'invalid_coords'`, `'invalid_plate'`, `'plate_owned'`, `'plate_in_use'`, `'invalid_bucket'`, or a platform reason
+
+```lua
+local id = exports.opx_core:SpawnVehicle('Vehicle.v_sport1_quadra_turbo_r_player', coords, 90.0, { warp = source })
+```
+
+## DeleteVehicle
+
+An owned car goes back to its garage (properties saved); any other car is removed.
+
+```lua
+exports.opx_core:DeleteVehicle(vehicleId)
+```
+
+- vehicleId: `number`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_vehicle'`, `'not_found'`
+
+## GetVehicleProperties
+
+```lua
+exports.opx_core:GetVehicleProperties(vehicleId)
+```
+
+- vehicleId: `number`
+
+**Returns**
+
+- props?: `table` (`Open77.vehicles.getProperties`)
+- reason?: `string`
+
+## SetVehicleProperties
+
+```lua
+exports.opx_core:SetVehicleProperties(vehicleId, props)
+```
+
+- vehicleId: `number`
+- props: `table`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_vehicle'`, `'invalid_props'`, or a platform reason
+
+## GetVehicleByPlate
+
+Live id of a car spawned through opx_core.
+
+```lua
+exports.opx_core:GetVehicleByPlate(plate)
+```
+
+- plate: `string`
+
+**Returns**
+
+- vehicleId?: `number`
+
+## GetVehicleOwner
+
+```lua
+exports.opx_core:GetVehicleOwner(vehicleId)
+```
+
+- vehicleId: `number`
+
+**Returns**
+
+- citizenId?: `string`
+- plate?: `string`
+
+## SetVehicleOwnerAccess
+
+`allowed = true` unlocks the car for that player whatever its lock; `false` returns to the car's own lock.
+
+```lua
+exports.opx_core:SetVehicleOwnerAccess(vehicleId, source, allowed)
+```
+
+- vehicleId: `number`
+- source: `number`
+- allowed: `boolean`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_argument'`, or a platform reason
+
+## AddOwnedVehicle
+
+Gives a car to a character, stored in `Config.vehicles.defaultGarage`.
+
+```lua
+exports.opx_core:AddOwnedVehicle(citizenId, record, props, plate)
+```
+
+- citizenId: `string`
+- record: `string`
+- props?: `table`
+- plate?: `string` (generated from `Config.vehicles.platePattern` when `nil`)
+
+**Returns**
+
+- plate?: `string`
+- reason?: `'not_ready'`, `'unknown_citizen'`, `'invalid_record'`, `'invalid_props'`, `'invalid_plate'`, `'plate_taken'`, `'plate_exhausted'`, `'db_error'`
+
+## GetOwnedVehicles
+
+```lua
+exports.opx_core:GetOwnedVehicles(citizenId)
+```
+
+- citizenId: `string`
+
+**Returns**
+
+- vehicles: `table[]`
+  - plate, citizenId, record: `string`
+  - props?: `table`
+  - stored: `boolean`
+  - garage?: `string`
+  - vehicleId?: `number` (when out)
+  - createdAt, updatedAt: `number` (unix seconds)
+
+## GetOwnedVehicle
+
+```lua
+exports.opx_core:GetOwnedVehicle(plate)
+```
+
+- plate: `string`
+
+**Returns**
+
+- vehicle?: `table` (same shape as `GetOwnedVehicles`)
+
+## SaveOwnedVehicle
+
+Saves the live car's properties.
+
+```lua
+exports.opx_core:SaveOwnedVehicle(plate, vehicleId)
+```
+
+- plate: `string`
+- vehicleId?: `number` (default: the tracked one)
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_found'`, `'not_out'`, `'wrong_vehicle'`
+
+## SpawnOwnedVehicle
+
+```lua
+exports.opx_core:SpawnOwnedVehicle(plate, coords, heading, options)
+```
+
+- plate: `string`
+- coords: `vector3` or `{ x, y, z, heading? }`
+- heading?: `number`
+- options?: `table`
+  - bucket?: `number`
+  - warp?: `number`
+  - locked?: `boolean` (default `Config.vehicles.lockOwned`)
+  - persistent?: `boolean`
+
+**Returns**
+
+- vehicleId: `number` or `false`
+- reason?: `'not_ready'`, `'not_found'`, `'already_out'`, or a spawn reason
+
+## StoreOwnedVehicle
+
+Saves, removes and marks the car stored. Raises `opx:vehicleStored`.
+
+```lua
+exports.opx_core:StoreOwnedVehicle(plate, vehicleId, garage)
+```
+
+- plate: `string`
+- vehicleId?: `number`
+- garage?: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_found'`, `'not_out'`, `'wrong_vehicle'`
+
+## RemoveOwnedVehicle
+
+Deletes the ownership row, and the car when it is out.
+
+```lua
+exports.opx_core:RemoveOwnedVehicle(plate)
+```
+
+- plate: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_found'`

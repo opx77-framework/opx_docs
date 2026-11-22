@@ -1,0 +1,62 @@
+---
+title: opx_traumateam
+description: Trauma Team job. Duty, uniform, dispatch of downed players, revive, treat and subscriptions.
+---
+
+<ResourceLinks repo="opx_traumateam" />
+
+The `traumateam` job (type `ems`): service and uniform at a station, calls from downed players, revive and treat in the targeting eye, and Silver / Gold / Platinum subscriptions (7 days, no auto-renewal).
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+- [opx_dialog](/docs/opx_dialog)
+
+Optional, asked at runtime: [opx_medical](/docs/opx_medical) (calls, revive), [opx_society](/docs/opx_society) (boss menu), [opx_progress](/docs/opx_progress) (action bar), [opx_target](/docs/opx_target) (eye options).
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_traumateam.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_dialog",
+"opx_medical",
+"opx_society",
+"opx_progress",
+"opx_target",
+"opx_traumateam"
+```
+
+The `opx_traumateam_subscriptions` table is created at start. Give the job with `setjob <id> traumateam <grade>`.
+
+### Config [step]
+
+Everything is in `config.lua`. The station and kiosk points were not walked: check them in game.
+
+```lua
+Config.locale = 'en'  -- job and grade labels, set it like opx_core's
+Config.bossGrade = 3  -- grade that gets "Management"
+Config.stations = { { label = "Trauma Team - Vik's Clinic", x = -1546.0, y = 1236.0, z = 11.6, radius = 2.5, bucket = 0 } }
+Config.revive = { fee = 300, seconds = 8, distance = 3.0, health = 0.5, medicBonus = 100, animation = 'examine', item = false }
+Config.treat = { fee = 100, seconds = 4, distance = 3.0, animation = 'examine' }
+Config.tiers = {
+  gold = { label = 'Gold', price = 2500, days = 7, priority = 2, reviveCoverage = 1.0, respawnCoverage = 1.0, reviveHealth = 0.75 },
+}
+Config.versionCheck = true
+```
+
+## Usage
+
+- `E` at the station: subscriptions; members also get service, uniform and management.
+- `E` at the kiosk: subscriptions only.
+- `/tt` or the eye on yourself (on duty): open calls; Enter takes or drops one (GPS route).
+- Eye on a player (on duty): Revive a downed player or Treat a living one. The patient is billed; his plan covers part of a revive.

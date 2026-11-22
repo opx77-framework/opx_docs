@@ -1,0 +1,297 @@
+---
+title: Client
+---
+
+The library runs in your resource. Declare `dependency "opx_target"`, then:
+
+```lua
+local Target = require('@opx_target')
+```
+
+Registrations end when your resource stops. Calling at file scope is fine: they are sent once opx_target runs. Everything here is client UX: a server handler checks source, target, distance and permission itself.
+
+## Target.addPlayer
+
+Options on other players. `addSelf`, `addNpc`, `addVehicle`, `addDoor`, `addProp`, `addWorld`, `addSky` and `addGlobal` take the same argument and return the same values.
+
+```lua
+Target.addPlayer(options)
+Target.addSelf(options)    -- your own body
+Target.addNpc(options)
+Target.addVehicle(options)
+Target.addDoor(options)
+Target.addProp(options)    -- prop, object, item, device
+Target.addWorld(options)   -- a surface with no entity
+Target.addSky(options)     -- a direction, never a place
+Target.addGlobal(options)  -- every hit except the sky and yourself
+```
+
+- options: `table` or `table[]`
+  - One [option](#option) or a list.
+
+**Returns**
+
+- id?: `integer`
+- reason?: `string`
+  - `'invalid_options'`, `'invalid_option:<path>'`, `'option_limit'`, `'too_deep:<path>'`, `'option_without_action:<path>'`, `'registration_limit'`, `'invalid_<field>:<path>'` for label, name, description, group, icon, danger, order, distance, disabled, server_event, data
+
+```lua
+local id = Target.addVehicle({
+    label = 'Check plate', icon = 'search', distance = 2.5,
+    canInteract = function(ctx) return ctx.target.vehicleId ~= nil end,
+    onSelect = function(ctx) TriggerServerEvent('myres:checkPlate', ctx.target.vehicleId) end,
+})
+```
+
+## Target.add
+
+Options on a kind, a set or a list of kinds.
+
+```lua
+Target.add(kinds, options)
+```
+
+- kinds: `string` or `string[]`
+  - Kinds: `'player'`, `'self'`, `'npc'`, `'vehicle'`, `'door'`, `'prop'`, `'device'`, `'item'`, `'object'`, `'world'`, `'sky'`
+  - Sets: `'prop'`, `'global'`
+- options: `table` or `table[]`
+
+**Returns**
+
+- id?: `integer`
+- reason?: `string`
+  - As `addPlayer`, plus `'invalid_kinds'`.
+
+## Target.addModel
+
+Options on exact models. Matches every kind but the sky.
+
+```lua
+Target.addModel(models, options)
+```
+
+- models: `string` or `string[]`
+  - A record (`'Character.Judy'`, `'Vehicle.v_sport2_quadra_type66'`) or a class name.
+- options: `table` or `table[]`
+
+**Returns**
+
+- id?: `integer`
+- reason?: `string`
+  - As `addPlayer`, plus `'invalid_models'`.
+
+## Target.addEntity
+
+Options on exact entities. A selector may name an entity that does not exist yet.
+
+```lua
+Target.addEntity(selectors, options)
+```
+
+- selectors: `table` or `table[]`
+  - One field each: `{ playerId = 3 }`, `{ vehicleId = 12 }`, `{ npcId = 7 }`, `{ propId = '123' }`, `{ engineEntity = '123' }`
+  - `propId` and `engineEntity` are decimal strings.
+- options: `table` or `table[]`
+
+**Returns**
+
+- id?: `integer`
+- reason?: `string`
+  - As `addPlayer`, plus `'invalid_entities'`.
+
+## Target.remove
+
+Removes one registration of this resource.
+
+```lua
+Target.remove(id)
+```
+
+- id: `integer`
+
+**Returns**
+
+- removed: `boolean`
+
+## Target.removeAll
+
+Removes every registration this resource made through the library.
+
+```lua
+Target.removeAll()
+```
+
+## Target.setEnabled
+
+`false` keeps targeting off (and closes it) until this resource calls `setEnabled(true)` or stops. Remembered across opx_target restarts.
+
+```lua
+Target.setEnabled(value)
+```
+
+- value: `boolean`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'service_unavailable'` when opx_target is not running yet (sent again once it runs).
+
+## Target.isEnabled
+
+True while no resource holds targeting off.
+
+```lua
+Target.isEnabled()
+```
+
+**Returns**
+
+- enabled: `boolean`
+
+## Target.getDisabledBy
+
+Resources holding targeting off, sorted.
+
+```lua
+Target.getDisabledBy()
+```
+
+**Returns**
+
+- resources: `string[]`
+
+## Target.isOpen
+
+True while the player aims (key held), menu open or not.
+
+```lua
+Target.isOpen()
+```
+
+**Returns**
+
+- aiming: `boolean`
+
+## Target.isMenuOpen
+
+True while a context menu is on screen.
+
+```lua
+Target.isMenuOpen()
+```
+
+**Returns**
+
+- open: `boolean`
+
+## Target.close
+
+Closes the aim and its menu. A fresh key press is needed to aim again.
+
+```lua
+Target.close()
+```
+
+## Target.getVersion
+
+Version of the running opx_target.
+
+```lua
+Target.getVersion()
+```
+
+**Returns**
+
+- version?: `string`
+  - `nil` when opx_target is not running.
+
+## Option
+
+One entry of `options`. A row needs `onSelect`, `event`, `serverEvent` or `children`; when several are set, all run.
+
+- name?: `string`
+  - Passed back in `ctx.option.name`. `[%w_.:-]`, 64 max.
+- label: `string`
+  - 80 max.
+- icon?: `string`
+  - Same names as opx_menu, plus aliases. Unknown names draw `'dot'`.
+- description?: `string`
+  - Footer text while the row is focused, 180 max.
+- group?: `string`
+  - Header above consecutive rows of the same group.
+- separator?: `boolean`
+  - A line (or a group header with `label`) instead of a row.
+- danger?: `boolean`
+  - Drawn in the alarm colour.
+- order?: `integer`
+  - `-1000` to `1000`, lower first. Default `0`.
+- distance?: `number`
+  - Max player-to-target metres, up to `Config.maxDistance`. Default `Config.defaultDistance`. Children inherit it.
+- disabled?: `boolean`, `string` or `function(ctx)`
+  - Greyed row. A string is the reason. A function returns `true` (plus a reason) or a reason string. Must not yield.
+- canInteract?: `function(ctx)`
+  - Row hidden unless it returns truthy. Must not yield.
+- onSelect?: `function(ctx)`
+  - Runs in its own thread once the menu released the input. May yield.
+- event?: `string`
+  - Local event raised in your resource. See [Events](/docs/opx_target/events/client).
+- serverEvent?: `string`
+  - Server event. See [Events](/docs/opx_target/events/server).
+- data?: `table`
+  - Static JSON-like data, copied to `ctx.option.data`. About 2 KiB.
+- children?: `table[]`
+  - Submenu, up to `Config.maxDepth` levels.
+
+## ctx
+
+The table `canInteract`, `disabled`, `onSelect` and `event` receive. It is a copy.
+
+- kind: `string`
+- target: `table`
+  - kind: `string`
+  - playerId?: `integer`
+  - npcId?: `integer`
+  - vehicleId?: `integer`
+  - propId?: `string`
+  - engineEntity?: `string`
+    - Local to this client, never send it to the server.
+  - entity?: `string`
+    - Local to this client.
+  - model?: `string`
+  - className?: `string`
+  - name?: `string`
+  - networked: `boolean`
+  - isLocalPlayer: `boolean`
+  - position: `{ x, y, z }`
+  - distance?: `number`
+- hit?: `{ position, normal?, material?, source? }`
+  - `nil` for the sky.
+- distance?: `number`
+  - `nil` for the sky.
+- origin: `{ x, y, z }`
+  - Camera ray origin.
+- direction: `{ x, y, z }`
+  - Unit ray direction.
+- screen: `{ x, y }`
+- option: `{ name, path, id, data? }`
+
+## Exports
+
+The same functions are client exports for resources that do not load the library. Callbacks are then names of your own client exports.
+
+```lua
+local id, reason = Open77.exports.callSync('opx_target', 'addPlayer', {
+    label = 'Search', icon = 'search', onSelect = 'searchPlayer', canInteract = 'canSearch',
+})
+```
+
+- Exports: `addPlayer`, `addSelf`, `addNpc`, `addVehicle`, `addDoor`, `addProp`, `addWorld`, `addSky`, `addGlobal`, `add`, `addModel`, `addEntity`, `remove`, `removeAll`, `setEnabled`, `isEnabled`, `getDisabledBy`, `isOpen`, `isMenuOpen`, `close`, `getVersion`
+- onSelect: `string`
+  - Export called with `ctx`. May yield.
+- canInteract: `string`
+  - Export called with `ctx`, must return `true` to show. Must not yield.
+- disabledWhen: `string`
+  - Export called with `ctx`, returns `boolean, reason?`. Must not yield.
+- `event` is library only.
+- `remove(id)` answers `false, 'not_found'` or `false, 'not_owner'`; `setEnabled` answers `false, 'expected_boolean'` for a non-boolean.

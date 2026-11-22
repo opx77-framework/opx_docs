@@ -1,0 +1,28 @@
+---
+title: Client
+---
+
+## IsSelecting
+
+True while the local player is not `'playing'`.
+
+```lua
+Open77.exports.callSync('opx_character', 'IsSelecting')
+```
+
+**Returns**
+
+- selecting: `boolean`
+
+## GetPhase
+
+Phase as the local client sees it.
+
+```lua
+Open77.exports.callSync('opx_character', 'GetPhase')
+```
+
+**Returns**
+
+- phase: `string`
+  - `'waiting'`, `'selecting'`, `'leaving'`, `'creating'`, `'playing'`

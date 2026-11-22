@@ -1,0 +1,16 @@
+---
+title: Client
+---
+
+### opx:character:spawned
+
+Sent to the player's own client when his character enters the world.
+
+```lua
+RegisterNetEvent('opx:character:spawned', function(info) end)
+```
+
+- info: `table`
+  - citizenId: `string`
+  - creation: `boolean`
+  - resumed: `boolean`

@@ -1,0 +1,46 @@
+---
+title: opx_hud
+description: Player HUD. Status, money and job, vehicle dashboard, voice and help line. Provider of the hud slot.
+---
+
+<ResourceLinks repo="opx_hud" />
+
+The player HUD: health, armor, stamina, hunger and thirst bottom-left, money and job top-right, a speed dashboard in vehicles, a voice block and a help line. It hides the vanilla HUD, shows only once a character is loaded and hides itself in menus and in the character creator.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- Optional: `open-voice` / `open77_voice` for the voice block.
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_hud.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_hud"
+```
+
+### Config [step]
+
+Everything is in `config.lua`. Colours are at the top of `ui/hud.rcss`.
+
+```lua
+Config.toggleCommand = 'hud'  -- players hide / show their HUD; false = no command
+Config.blocks = { status = true, needs = true, money = true, job = true, vehicle = true, voice = true }
+Config.positions.status = { anchor = 'bottom-left', x = 40, y = 44 } -- also info, vehicle, help, voice
+Config.money = { symbol = '€$', symbolAfter = false, separator = ' ', cash = 'money', bank = 'bank' }
+Config.vehicle.unit = 'kmh'   -- 'kmh' or 'mph'
+Config.vanilla.minimap = true -- vanilla HUD parts hidden while opx_hud runs
+Config.versionCheck = true
+```
+
+## Usage
+
+- `/hud`: hide or show your own HUD.

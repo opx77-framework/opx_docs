@@ -1,6 +1,6 @@
 # OPX//77 framework
 
-**Documentation site: https://opx77-framework.github.io/opx_docs/** (built from this repository and the README of every `opx_*` repository).
+**Documentation: https://opx77-framework.github.io/opx_docs/**
 
 Serious-roleplay framework for [Open77](https://open2077.net) (Cyberpunk 2077 multiplayer), split into small resources
 you can edit one at a time. Every UI is NativeUI (RML + RCSS), no WebUI build.
@@ -142,6 +142,6 @@ The contract between resources (data shapes, exports, events) is [`docs/ARCHITEC
 
 ## Documentation site
 
-The site is Fumadocs (Next.js, static export) deployed to GitHub Pages by `.github/workflows/deploy.yml`.
-`scripts/build-content.mjs` generates its pages from `README.md`, `docs/*.md` and the README of every `opx_*` repository;
-it runs on every push here and every 6 hours. Locally: `npm ci && npm run dev`.
+Fumadocs (Next.js, static export), deployed to GitHub Pages by `.github/workflows/deploy.yml` on every push to `main`.
+Pages are in `content/docs/`: one folder per resource (`index.mdx`, `functions/`, `events/`), order in `content/docs/meta.json`.
+Locally: `npm ci && npm run dev`. `npm run check` compiles every page.

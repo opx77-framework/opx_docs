@@ -1,0 +1,54 @@
+---
+title: opx_vehiclekeys
+description: Vehicle keys. Lock, lend keys, engine and trunk.
+---
+
+<ResourceLinks repo="opx_vehiclekeys" />
+
+The owner locks and unlocks his car, lends keys to other characters and takes them back, switches the engine and opens the trunk. Key holders and staff find the car open; everybody else is kept out. Provider of opx_core's `vehiclekeys` slot.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+
+Optional: [opx_target](/docs/opx_target) (eye options) and the inventory provider (trunk).
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_vehiclekeys.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_vehiclekeys"
+```
+
+Load it after the inventory provider and opx_target when you use them. The `opx_vehicle_keys` table is created at start. opx_core's `Config.providers.vehiclekeys = 'opx_vehiclekeys'` is the shipped default.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.keys = { lock = 'U', menu = false } -- rebindable; menu = false: no key, use the command
+Config.command = 'vehicle'                 -- false = no command
+Config.maxHolders = 5                      -- shared keys per car, owner not counted
+Config.engine = { enabled = true, needsKey = true }
+Config.trunk = { enabled = true, distance = 3.5, capacityG = 50000, slots = 20, ownedOnly = true, label = 'Trunk %s' }
+Config.staffRight = 'command.opx_vehiclekeys' -- holders have a key to every car
+Config.versionCheck = true
+```
+
+## Usage
+
+- `U`: lock / unlock the car you sit in, else the nearest car you hold a key for.
+- `/vehicle`: lock, engine (driver seat), trunk (on foot), give or take back keys.
+- Eye: Lock / Unlock and Trunk on vehicles, Give a vehicle key on a person.
+- Temporary keys (rentals, test drives) are lost when opx_vehiclekeys restarts.

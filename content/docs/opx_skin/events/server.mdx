@@ -1,0 +1,25 @@
+---
+title: Server
+---
+
+### opx:skin:clothingChanged
+
+Triggered after a successful `SetClothing`.
+
+```lua
+AddEventHandler('opx:skin:clothingChanged', function(playerId, slots) end)
+```
+
+- playerId: `number`
+- slots: `table` the 7 saved slots
+
+### opx:skin:uniformChanged
+
+Triggered when a uniform is put on or removed.
+
+```lua
+AddEventHandler('opx:skin:uniformChanged', function(playerId, owner) end)
+```
+
+- playerId: `number`
+- owner?: `string` resource of the uniform, `nil` when it is gone

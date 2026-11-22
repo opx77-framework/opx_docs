@@ -1,0 +1,58 @@
+---
+title: opx_clotheshop
+description: Clothing shops and barbers. The creator in one scope, paid on Confirm.
+---
+
+<ResourceLinks repo="opx_clotheshop" />
+
+Clothing shops, barbers, surgery and tattoo points: the player opens the creator in one scope and pays when he confirms a change. A clothing point also offers his saved outfits. No database table.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+- [opx_creator](/docs/opx_creator) (or another creator provider with scopes)
+- [opx_skin](/docs/opx_skin) (clothing points)
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_clotheshop.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_skin",
+"opx_creator",
+"opx_clotheshop"
+```
+
+### Config [step]
+
+Everything is in `config.lua`. Copy a position with opx_admin `/coords`.
+
+```lua
+Config.points = {
+    { name = 'kabuki_lower_walkway', type = 'clothing', label = 'Clothing - Lower Walkway', price = 150,
+      x = -1201.07, y = 2035.60, z = 5.60, radius = 2.5, bucket = 0,
+      society = false, -- job whose society receives the payments
+      jobs = false },  -- or { traumateam = 0 }: job -> minimum grade
+}
+Config.payFrom = { 'money', 'bank' } -- first account holding the whole price pays
+Config.outfitsAtShop = true          -- "My outfits" in the clothing menu
+Config.blips = true                  -- map pin on each point
+Config.key = 'E'                     -- rebindable by players
+Config.versionCheck = true
+```
+
+`type` is a creator scope: `'clothing'`, `'barber'`, `'surgery'`, `'tattoo'` or one you added to opx_creator's `Config.scopes`.
+
+## Usage
+
+- E at a point. Clothing: menu with Fitting room and My outfits. Other types: the creator opens at once.
+- The price shows on the Confirm button. Nothing changed or cancelled: nothing paid.

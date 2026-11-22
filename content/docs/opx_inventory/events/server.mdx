@@ -1,0 +1,36 @@
+---
+title: Server
+---
+
+### opx:inventory:changed
+
+Triggered once per change of a loaded character's pockets (exports, menu, stash, commands, starter kit). Not for stash-only changes, ammo burnt by a weapon, or `clearinventory`.
+
+```lua
+AddEventHandler('opx:inventory:changed', function(source, item, delta) end)
+```
+
+- source: `number`
+- item: `string`
+- delta: `integer`
+  - Positive when added, negative when taken.
+
+### opx:inventory:itemRegistered
+
+Triggered after each successful `RegisterItem` (new or replaced).
+
+```lua
+AddEventHandler('opx:inventory:itemRegistered', function(item, resource) end)
+```
+
+- item: `string`
+- resource: `string`
+  - The owner.
+
+### opx:inventory:itemUnregistered
+
+```lua
+AddEventHandler('opx:inventory:itemUnregistered', function(item) end)
+```
+
+- item: `string`

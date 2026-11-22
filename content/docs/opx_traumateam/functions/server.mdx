@@ -1,0 +1,85 @@
+---
+title: Server
+---
+
+Every export is synchronous: `exports.opx_traumateam:Name(...)` or `Open77.exports.callSync('opx_traumateam', 'Name', ...)`.
+
+## GetSubscription
+
+The active plan of a player or of any character.
+
+```lua
+exports.opx_traumateam:GetSubscription(sourceOrCitizenId)
+```
+
+- sourceOrCitizenId: `number` or `string`
+
+**Returns**
+
+- subscription?: `table`
+  - tier: `string`
+    - A key of `Config.tiers` (`'silver'`, `'gold'`, `'platinum'`).
+  - label: `string`
+  - expiresAt: `integer`
+    - Unix seconds.
+  - priority: `integer`
+    - Lower = higher in the call list.
+
+## GetTiers
+
+The plans in menu order (copies of `Config.tiers`).
+
+```lua
+exports.opx_traumateam:GetTiers()
+```
+
+**Returns**
+
+- tiers: `table[]`
+  - name: `string`
+  - label: `string`
+  - price: `integer`
+  - days: `integer`
+  - priority: `integer`
+  - reviveCoverage: `number`
+    - 0 to 1, share of the revive fee paid by the plan.
+  - respawnCoverage: `number`
+    - 0 to 1, share of the hospital bill.
+  - reviveHealth: `number`
+    - 0 to 1, health after a Trauma Team revive.
+
+## IsOnDuty
+
+Whether a player is a Trauma Team member on duty.
+
+```lua
+exports.opx_traumateam:IsOnDuty(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- onDuty: `boolean`
+
+## GetDispatch
+
+The open calls, best plan first, then oldest.
+
+```lua
+exports.opx_traumateam:GetDispatch()
+```
+
+**Returns**
+
+- calls: `table[]`
+  - id: `integer`
+    - The medical provider's call id.
+  - patient: `number`
+  - priority: `integer`
+    - Tier priority, or `Config.uninsuredPriority`.
+  - tier?: `string`
+  - position: `{ x: number, y: number, z: number }`
+  - bucket: `integer`
+  - at: `integer`
+  - responder?: `number`

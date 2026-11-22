@@ -1,0 +1,45 @@
+---
+title: opx_progress
+description: Progress bar for timed actions. Provider of the progress slot.
+---
+
+<ResourceLinks repo="opx_progress" />
+
+A thin progress bar with a label for timed actions (repairing, searching...). One action at a time per player; controls can be blocked and an animation can play while it runs. It fills the `progress` slot of [opx_core](/docs/opx_core).
+
+## Installation
+
+### Dependencies [step]
+
+None. `open77_animations` is optional (actions run without animation).
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_progress.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_progress"
+```
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.locale = 'auto'   -- 'auto' follows the game language, or 'en' / 'fr'
+Config.cancelKey = 'X'   -- rebindable by players
+Config.actions.combat = { 'Attack', 'Melee', 'Grenade', 'WeaponWheel', 'NextWeapon' } -- blocked by disableCombat
+Config.actions.always = {}   -- blocked during every action, e.g. { 'Hub' }
+Config.bar.bottom = 232  -- dp from the bottom of the screen
+Config.bar.width = 380   -- dp, 200 to 1200
+Config.versionCheck = true
+```
+
+## Usage
+
+- X: cancels the running action (rebindable in the game's key bindings).

@@ -1,0 +1,42 @@
+---
+title: opx_notification
+description: Notification feed of single typed lines. Provider of the notify slot.
+---
+
+<ResourceLinks repo="opx_notification" />
+
+Notifications as a feed of single typed lines at the top right: a coloured marker (info, success, warning, error), the game time, then the text. Identical lines are counted (`x2`) instead of repeated. It fills the `notify` slot of [opx_core](/docs/opx_core).
+
+## Installation
+
+### Dependencies [step]
+
+None. `open77_weather` is optional (game time before each line).
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_notification.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_notification"
+```
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.locale = 'auto'  -- 'auto' follows the game language, or 'en' / 'fr'
+Config.notify.position = { anchor = 'top-right', x = 32, y = 140 } -- anchor + offsets in dp
+Config.notify.max = 5           -- lines on screen at once
+Config.notify.duration = 5000   -- ms, when the caller gives none
+Config.notify.durations = { warning = 7000, error = 8000 } -- per type
+Config.notify.merge = true      -- identical lines counted (x2)
+Config.notify.typing = 32       -- characters per second, 0 = no typewriter
+Config.versionCheck = true
+```

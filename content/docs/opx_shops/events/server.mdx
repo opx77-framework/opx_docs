@@ -1,0 +1,17 @@
+---
+title: Server
+---
+
+### opx:shops:bought
+
+Triggered after every successful purchase.
+
+```lua
+AddEventHandler('opx:shops:bought', function(source, shopName, item, count, total) end)
+```
+
+- source: `integer`
+- shopName: `string`
+- item: `string`
+- count: `integer`
+- total: `integer`

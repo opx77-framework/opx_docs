@@ -1,0 +1,44 @@
+---
+title: Server
+---
+
+## GetBalance
+
+Cash and bank of a loaded character.
+
+```lua
+exports.opx_bank:GetBalance(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- balance?: `{ cash: number, bank: number }`
+- reason?: `'not_loaded'`
+
+## Transfer
+
+Bank to bank between two loaded characters, all or nothing. No location check: the caller decides where it may happen.
+
+```lua
+exports.opx_bank:Transfer(fromSource, toSource, amount, note)
+```
+
+- fromSource: `number`
+- toSource: `number`
+- amount: `number`
+  - Integer between `Config.transferMin` and `Config.transferMax`.
+- note?: `string`
+  - Up to `Config.noteMax` bytes.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'invalid_amount'`, `'insufficient_funds'`, `'not_loaded'`, `'target_not_loaded'`, `'self_transfer'`, `'busy'`, `'core_unavailable'`
+
+```lua
+local ok, reason = exports.opx_bank:Transfer(source, target, 500, 'rent')
+if not ok then print(reason) end
+```

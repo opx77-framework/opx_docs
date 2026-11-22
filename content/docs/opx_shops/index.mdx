@@ -1,0 +1,55 @@
+---
+title: opx_shops
+description: Shops at fixed points. Pick an item, a quantity, pay.
+---
+
+<ResourceLinks repo="opx_shops" />
+
+Shops at fixed points: the player picks an item, types a quantity and pays from cash, then bank. Prices live in the server config only; items go to the inventory provider.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+- [opx_dialog](/docs/opx_dialog)
+- An inventory provider ([opx_inventory](/docs/opx_inventory) by default)
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_shops.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_dialog",
+"opx_inventory",
+"opx_shops"
+```
+
+No table of its own.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.catalogues = { general = { { item = 'water', price = 15 }, { item = 'bread', price = 20 } } }
+Config.shops = { { name = 'kabuki_vendor_lane', label = 'Kabuki Market - Vendor Lane', catalogue = 'general',
+  x = -1212.26, y = 1978.53, z = 7.98, radius = 2.5, bucket = 0, society = false, jobs = false } }
+  -- society: job whose society gets the sales; jobs: { traumateam = 0 } = only these jobs from this grade
+Config.payFrom = { 'money', 'bank' } -- first account holding the whole price pays
+Config.maxQuantity = 20
+Config.key = 'E'                     -- rebindable by players
+Config.blips = true
+Config.versionCheck = true
+```
+
+## Usage
+
+- `E` at a shop: pick an item and a quantity.

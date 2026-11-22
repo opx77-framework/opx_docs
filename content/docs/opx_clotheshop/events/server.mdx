@@ -1,0 +1,16 @@
+---
+title: Server
+---
+
+### opx:clotheshop:paid
+
+Triggered after every completed purchase, free points included.
+
+```lua
+AddEventHandler('opx:clotheshop:paid', function(source, pointName, type, price) end)
+```
+
+- source: `number`
+- pointName: `string`
+- type: `string`
+- price: `number`

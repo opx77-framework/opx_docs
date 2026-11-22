@@ -1,0 +1,67 @@
+---
+title: Client
+---
+
+A playback started here is owned by opx_emotes, not by the caller. To own an animation, call `open77_animations` `request` yourself.
+
+## Play
+
+Plays an animation profile on the local player, replacing what opx_emotes played before. Waits for the platform: call it from a thread. `Config.hidden` does not apply.
+
+```lua
+Open77.exports.call('opx_emotes', 'Play', profileId, options):await()
+```
+
+- profileId: `string`
+- options?: `table`
+  - loop?: `boolean` default `false` for a one-shot gesture, `true` otherwise
+  - durationMs?: `number` integer 1000 to 600000
+
+**Returns**
+
+- playbackId: `string` or `false`
+- reason?: `string`
+  - `'unknown_profile'`, `'invalid_duration'`, `'unavailable'`, `'not_loaded'`, `'progress_active'`, `'down'`, `'player_in_vehicle'`, `'player_not_alive'`, `'player_not_ready'`, `'animation_busy'`, `'too_many_requests'`, `'request_timeout'`, `'cancelled'`, or another open77_animations refusal
+
+```lua
+CreateThread(function()
+    local id, reason = Open77.exports.call('opx_emotes', 'Play', 'wave'):await()
+    if not id then print(reason) end
+end)
+```
+
+## Stop
+
+Stops what opx_emotes started (emote, hands up, pointing). Other resources' animations are left alone.
+
+```lua
+Open77.exports.callSync('opx_emotes', 'Stop')
+```
+
+**Returns**
+
+- stopped: `boolean`
+
+## IsPlaying
+
+True while an action started by opx_emotes is the player's current animation.
+
+```lua
+Open77.exports.callSync('opx_emotes', 'IsPlaying')
+```
+
+**Returns**
+
+- playing: `boolean`
+
+## OpenMenu
+
+Opens the emote menu.
+
+```lua
+Open77.exports.callSync('opx_emotes', 'OpenMenu')
+```
+
+**Returns**
+
+- ok: `boolean` `false` when no character is loaded or open77_animations is not running

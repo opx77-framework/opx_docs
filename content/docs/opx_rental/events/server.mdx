@@ -1,0 +1,40 @@
+---
+title: Server
+---
+
+### opx:rental:rented
+
+A car was rented.
+
+```lua
+AddEventHandler('opx:rental:rented', function(source, vehicleId, record, price) end)
+```
+
+- source: `integer`
+- vehicleId: `integer`
+- record: `string`
+- price: `integer`
+  - Without the deposit.
+
+### opx:rental:returned
+
+A car was returned at a desk, or `EndRental` was called.
+
+```lua
+AddEventHandler('opx:rental:returned', function(source, vehicleId, refunded) end)
+```
+
+- source: `integer`
+- vehicleId: `integer`
+- refunded: `boolean`
+
+### opx:rental:expired
+
+The rental ended without a return (time over, renter gone too long, or the car disappeared). The deposit is lost.
+
+```lua
+AddEventHandler('opx:rental:expired', function(citizenId, vehicleId) end)
+```
+
+- citizenId: `string`
+- vehicleId: `integer`

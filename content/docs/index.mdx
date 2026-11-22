@@ -1,0 +1,66 @@
+---
+title: OPX//77
+description: Serious-roleplay framework for Open77 (Cyberpunk 2077 multiplayer), split into small resources.
+---
+
+Serious-roleplay framework for [Open77](https://open2077.net), split into small `opx_*` resources you can replace one at a time. Every UI is NativeUI.
+
+<Callout type="warn">
+OPX//77 is in development. Exports and events can change between versions.
+</Callout>
+
+## Installation
+
+### Requirements [step]
+
+- Open77 server and clients **2.50.0+op77.228** or newer.
+- MySQL / MariaDB enabled in `server.jsonc` (`database`).
+- Platform resources `open77_appearance` (>= 0.5.0) and `open77_equipment`.
+
+### Download [step]
+
+Clone every `opx_*` repository of [opx77-framework](https://github.com/opx77-framework) into the resource root.
+
+```bash
+for r in core weather dialog menu logs admin target notification chat hud skin creator inventory weapons \
+         bank progress society medical needs traumateam garage dealership doors shops clotheshop emotes \
+         vehiclekeys billing rental character; do
+  git clone https://github.com/opx77-framework/opx_$r.git
+done
+```
+
+### Start order [step]
+
+```jsonc
+"resources": {
+  "load": [
+    "opx_core", "opx_weather", "opx_dialog", "opx_menu", "opx_logs", "opx_admin",
+    "opx_target", "opx_notification", "opx_chat", "opx_hud", "opx_skin", "opx_creator",
+    "opx_inventory", "opx_weapons", "opx_bank", "opx_progress", "opx_society", "opx_medical",
+    "opx_needs", "opx_traumateam", "opx_garage", "opx_dealership", "opx_doors", "opx_shops",
+    "opx_clotheshop", "opx_emotes", "opx_vehiclekeys", "opx_billing", "opx_rental", "opx_character"
+  ]
+},
+"convars": {
+  "open77_appearance_creation": "runtime"
+}
+```
+
+Do not load `open77_creator`, `open77_chat` or `open77_contextmenu` next to OPX.
+
+### Update check [step]
+
+Each resource prints one line at start when a newer version is on GitHub. It needs outbound HTTP:
+
+```jsonc
+"http": {
+  "enabled": true,
+  "allowedHosts": ["raw.githubusercontent.com"]
+}
+```
+
+`Config.versionCheck = false` in a resource's `config.lua` turns it off.
+
+## Replacing a resource
+
+Every swappable service is a provider named in `opx_core`'s `Config.providers`. A replacement implements the same exports and events as the page of the resource it replaces.

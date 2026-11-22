@@ -1,0 +1,43 @@
+---
+title: Server
+---
+
+Raised after the job change was made through opx_core. Deposits and withdrawals raise opx_core's `opx:societyMoneyChanged` with reason `'society:deposit'` or `'society:withdraw'`.
+
+### opx:society:hired
+
+The target accepted the offer and is now grade 0.
+
+```lua
+AddEventHandler('opx:society:hired', function(bossSource, targetSource, job) end)
+```
+
+- bossSource: `number`
+- targetSource: `number`
+- job: `string`
+
+### opx:society:fired
+
+The target now has `Config.fallbackJob`, grade 0.
+
+```lua
+AddEventHandler('opx:society:fired', function(bossSource, targetSource, job) end)
+```
+
+- bossSource: `number`
+- targetSource: `number`
+- job: `string`
+
+### opx:society:gradeChanged
+
+After a promote or demote.
+
+```lua
+AddEventHandler('opx:society:gradeChanged', function(bossSource, targetSource, job, grade) end)
+```
+
+- bossSource: `number`
+- targetSource: `number`
+- job: `string`
+- grade: `integer`
+  - The new grade.

@@ -1,0 +1,152 @@
+---
+title: Client
+---
+
+The library runs in your resource. Declare `dependency "opx_dialog"`, then:
+
+```lua
+local Dialog = require('@opx_dialog')
+```
+
+`inputDialog` and `open` wait for the answer: call them from a thread or a menu callback.
+
+## Dialog.inputDialog
+
+Shows a form and waits for it to be submitted or cancelled.
+
+```lua
+Dialog.inputDialog(title, fields, options)
+```
+
+- title: `string`
+- fields: `(table | string)[]`
+  - See [Field](#field). A string is a text field with that label.
+  - 1 to `Config.maxFields` fields.
+- options?: `table`
+  - description?: `string`
+    - Text above the fields. `message` is an alias.
+  - subtitle?: `string`
+  - submitLabel?: `string`
+  - cancelLabel?: `string`
+  - allowCancel?: `boolean`
+    - Default `true`. `false`: Escape does nothing and the form takes the focus back. `canCancel` is an alias.
+  - validate?: `function(values)`
+    - Return `false, message` to keep the form open with the message. May yield, times out after `Config.validationTimeoutMs`.
+
+**Returns**
+
+- values?: `table`
+  - Keyed by field `name`, else by field index. An empty optional field is `nil`: iterate by index, not `ipairs`.
+- reason?: `string`
+  - `'cancelled'`, `'closed'`, `'focus_lost'`, `'owner_stopped'`, `'not_in_thread'`, `'dialog_busy'`, `'dialog_unavailable'`, `'request_unavailable'`, `'clock_pending'`, `'nativeui_unavailable'`, `'focus_unavailable'`, `'invalid_fields'`, or a field error (`'invalid_field'`, `'invalid_option'`, `'unsupported_type:<type>'`...)
+
+```lua
+CreateThread(function()
+    local values = Dialog.inputDialog('Transfer', {
+        { name = 'target', type = 'number', label = 'Player ID', required = true, min = 1 },
+        { name = 'amount', type = 'number', label = 'Amount', required = true, min = 1, precision = 0 },
+        { name = 'note', label = 'Note', maxLength = 64 },
+    })
+    if values then TriggerServerEvent('myres:transfer', values.target, values.amount, values.note) end
+end)
+```
+
+## Field
+
+One entry of `fields`.
+
+- type?: `'input'`, `'text'`, `'number'`, `'checkbox'`, `'color'`, `'date'`, `'select'`, `'password'`
+  - Default `'input'`; `'text'` is the same.
+- name?: `string` or `integer`
+  - Key in the returned values. Default: the field index.
+- label: `string`
+- description?: `string`
+- placeholder?: `string`
+- icon?: `string`
+  - `'input'`, `'person'`, `'hashtag'`, `'calendar'`, `'check'`, `'palette'`, `'lock'`. Others use the type icon.
+- required?: `boolean`
+  - Default `false`. A required checkbox must be checked.
+- disabled?: `boolean`
+- default?: `string`, `number` or `boolean`
+  - date: `true` is today's UTC date.
+- checked?: `boolean`
+  - checkbox.
+- min?: `number` or `string`
+  - Text minimum length, number minimum, or ISO date minimum.
+- max?: `number` or `string`
+  - Text maximum length, number maximum, or ISO date maximum.
+- minLength?: `integer`
+- maxLength?: `integer`
+- step?: `number`
+  - number: step from `min` (or zero).
+- precision?: `integer`
+  - number: decimal places, `0` to `8`.
+- format?: `'YYYY-MM-DD'`, `'DD/MM/YYYY'`, `'MM/DD/YYYY'`
+  - date display only.
+- options?: `(string | number | boolean | { label, value })[]`
+  - select, 128 max.
+
+Returned value per type:
+
+- input / text / password: trimmed `string`
+- number: `number` (decimal comma accepted)
+- checkbox: `boolean`
+- color: lowercase `'#rrggbb'` or `'#rrggbbaa'`
+- date: `'YYYY-MM-DD'`, whatever `format`
+- select: the option's `value`
+
+## Dialog.open
+
+Same as `inputDialog` with named options.
+
+```lua
+Dialog.open(opts)
+```
+
+- opts: `table`
+  - title: `string`
+  - fields: `table[]`
+  - Plus every key of `inputDialog`'s `options`.
+
+**Returns**
+
+- values?: `table`
+- reason?: `string`
+  - As `inputDialog`, plus `'invalid_options'`.
+
+## Dialog.closeInputDialog
+
+Force-closes this resource's form, even a locked one. The waiting call answers `nil, 'closed'`.
+
+```lua
+Dialog.closeInputDialog()
+```
+
+**Returns**
+
+- closed: `boolean`
+  - `false` when no form was open.
+
+## Dialog.isOpen
+
+True while this resource waits for a form.
+
+```lua
+Dialog.isOpen()
+```
+
+**Returns**
+
+- open: `boolean`
+
+## IsOpen
+
+Service export. A form of any resource is open.
+
+```lua
+Open77.exports.callSync('opx_dialog', 'IsOpen')
+```
+
+**Returns**
+
+- open: `boolean`

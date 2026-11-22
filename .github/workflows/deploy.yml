@@ -1,18 +1,13 @@
 name: Deploy documentation
 
-# The site is built from this repository (README.md, docs/) and from the
-# README.md of every opx_* repository of the organization, fetched at build
-# time. A push here rebuilds it; the schedule picks up resource README changes.
+# Pages live in content/docs (one folder per resource). Every push to main
+# checks them, builds the static site and deploys it to GitHub Pages.
 on:
   push:
     branches:
       - main
   pull_request:
   workflow_dispatch:
-  repository_dispatch:
-    types: [resource-updated]
-  schedule:
-    - cron: "17 */6 * * *"
 
 permissions:
   contents: read
@@ -40,11 +35,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Generates content/docs, then exports the static site to out/.
+      # Every page compiles, front matter has a title, meta.json files parse.
+      - name: Check content
+        run: npm run check
+
       - name: Build site
         run: npm run build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifact
         if: github.event_name != 'pull_request'

@@ -1,0 +1,57 @@
+---
+title: opx_weapons
+description: Weapon and ammo items, registered in the inventory catalogue.
+---
+
+<ResourceLinks repo="opx_weapons" />
+
+Owns the weapon and ammo items and registers them in the inventory provider with `RegisterItem`. Equipping is done by the [inventory](/docs/opx_inventory). Server only, no exports, no events.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_inventory](/docs/opx_inventory) (or any inventory provider with `RegisterItem`)
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_weapons.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_inventory",
+"opx_weapons"
+```
+
+Order does not matter: items are registered again whenever opx_core or the inventory starts.
+
+### Config [step]
+
+Everything is in `config.lua`. Never rename an item id players already own.
+
+```lua
+Config.ammo = {
+  ammo_handgun = { label = { en = 'Handgun ammo', fr = 'Munitions de pistolet' }, weightG = 10 }, -- per round
+}
+Config.weapons = {
+  weapon_lexington = {
+    label = { en = 'Lexington pistol', fr = 'Pistolet Lexington' },
+    weightG = 1200,
+    weapon = 'Items.Preset_Lexington_Default', -- TweakDB record
+    ammo = 'ammo_handgun',                     -- nil for melee
+  },
+}
+Config.versionCheck = true
+```
+
+To add a weapon: one `Config.weapons` entry with its `Items.Preset_*` record (Open77 docs, weapons dataset, prefer `canonical` rows) and an ammo item, then restart opx_weapons.
+
+## Usage
+
+- `giveweapon me weapon_lexington 30`, then equip it from the inventory.
+- `giveitem me ammo_handgun 50` for loose ammo.

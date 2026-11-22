@@ -1,0 +1,69 @@
+---
+title: Server
+---
+
+All exports are synchronous. Door ids are `'0x'` + 16 hex digits (given by `/doorid`), any case; answers use upper-case hex.
+
+## GetDoors
+
+Every configured door, by id (copies).
+
+```lua
+exports.opx_doors:GetDoors()
+```
+
+**Returns**
+
+- doors: `table<string, table>`
+  - label: `string`
+  - locked: `boolean`
+  - jobs: `table<string, integer>`
+    - Job name = minimum grade.
+  - hardLock: `boolean`
+
+## IsLocked
+
+Lock state of a configured door.
+
+```lua
+exports.opx_doors:IsLocked(doorId)
+```
+
+- doorId: `string`
+
+**Returns**
+
+- locked?: `boolean`
+  - `nil` for an unknown id.
+
+## SetLocked
+
+Locks or unlocks a configured door. No distance or key check. Stored, sent to every client and applied to open77_doors right after.
+
+```lua
+exports.opx_doors:SetLocked(doorId, locked)
+```
+
+- doorId: `string`
+- locked: `boolean`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'unknown_door'`, `'invalid_value'`, `'not_ready'`
+
+## HasAccess
+
+Whether a loaded character holds a key to the door: job at the minimum grade (on duty with `onDutyOnly`), citizen id in `citizens`, or `Config.staffRight`.
+
+```lua
+exports.opx_doors:HasAccess(source, doorId)
+```
+
+- source: `integer`
+- doorId: `string`
+
+**Returns**
+
+- hasAccess: `boolean`
+  - `false` for an unknown door or a player not loaded.

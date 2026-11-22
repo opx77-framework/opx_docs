@@ -1,0 +1,70 @@
+---
+title: Server
+---
+
+## GetNeeds
+
+Both needs of a loaded character.
+
+```lua
+exports.opx_needs:GetNeeds(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- needs?: `{ hunger: number, thirst: number }`
+
+## SetNeed
+
+Sets one need, clamped to `0..Config.max`. Crossing a `Config.warnAt` value downward notifies the player; reaching 0 raises `opx:needs:starving`.
+
+```lua
+exports.opx_needs:SetNeed(source, key, value)
+```
+
+- source: `number`
+- key: `'hunger'` or `'thirst'`
+- value: `number`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'invalid_player'`, `'invalid_key'`, `'invalid_value'`, `'not_loaded'`
+
+## AddNeed
+
+Adds `delta` to one need (negative lowers), clamped.
+
+```lua
+exports.opx_needs:AddNeed(source, key, delta)
+```
+
+- source: `number`
+- key: `'hunger'` or `'thirst'`
+- delta: `number`
+
+**Returns**
+
+- value: `number` new value, or `false`
+- reason?: `string`
+  - `'invalid_player'`, `'invalid_key'`, `'invalid_value'`, `'not_loaded'`
+
+## UseConsumable
+
+Usable-item handler registered on the inventory provider for each `Config.consumables` item. Only the inventory calls it. Waits for the eat / drink action (up to its seconds + 5).
+
+```lua
+Open77.exports.call('opx_needs', 'UseConsumable', source, item, instanceId, meta):await()
+```
+
+- source: `number`
+- item: `string`
+- instanceId?: `string`
+- meta?: `table`
+
+**Returns**
+
+- consume: `boolean` `true` only when the action ran to the end (the inventory removes one item)

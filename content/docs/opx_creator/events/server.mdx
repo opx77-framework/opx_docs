@@ -1,0 +1,55 @@
+---
+title: Server
+---
+
+Exactly one of `saved` or `closed` ends every session. The last argument `info` is shared by the three events:
+
+- token: `string`
+- mode: `'creation'` or `'edit'`
+- tag?: `string`
+- opener: `string`
+- scope?: `string`
+- changed?: `table` (on `saved` only)
+  - body: `boolean`
+  - clothing: `string[]` equipment slots saved, e.g. `{ 'Legs' }`
+
+### opx:creator:opened
+
+The creator is on screen (again after a re-open).
+
+```lua
+AddEventHandler('opx:creator:opened', function(playerId, info) end)
+```
+
+- playerId: `number`
+- info: `table`
+
+### opx:creator:saved
+
+The look was kept. Charge here when `info.opener` is you and `info.changed.clothing` is not empty.
+
+```lua
+AddEventHandler('opx:creator:saved', function(playerId, characterKey, family, info) end)
+```
+
+- playerId: `number`
+- characterKey: `string` citizen id
+- family: `'male'` or `'female'`
+- info: `table`
+
+### opx:creator:closed
+
+Closed without a save.
+
+```lua
+AddEventHandler('opx:creator:closed', function(playerId, reason, info) end)
+```
+
+- playerId: `number`
+- reason: `string`
+  - `'cancelled'`, `'failed'`, `'no_answer'`, `'dropped'`, `'stopped'`, `'closed'`, `'character_changed'`, `'unchanged'`, or the `Close` reason
+- info: `table`
+
+<Callout type="warn">
+Body edits (barber, surgery): a player who disconnects mid-edit keeps the last preview without `saved`. Charge before opening and refund on `closed`.
+</Callout>

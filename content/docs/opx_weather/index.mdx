@@ -1,0 +1,44 @@
+---
+title: opx_weather
+description: Time and weather API. Shared sky, a sky per routing bucket, named presets.
+---
+
+<ResourceLinks repo="opx_weather" />
+
+Time and weather for the server: the shared sky, a sky per routing bucket, and named presets. No menu and no commands, server exports only. Provider of the `weather` slot.
+
+## Installation
+
+### Dependencies [step]
+
+- open77_weather (without it every call answers `false, 'environment_unavailable'`)
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_weather.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_weather"
+```
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.presets = {
+  showcase = { time = { 13, 0, 0 }, weather = 'sunny', frozen = true }, -- character selection
+  dusk = { time = { 19, 30, 0 }, weather = 'lightclouds', frozen = true },
+}
+Config.allowSharedBucket = false        -- ApplyToPlayer refused on the shared bucket
+Config.releasePlayerSkyOnLeave = true   -- free a player sky when its bucket empties
+Config.restoreAfterAuthorityRestart = true -- re-apply bucket skies after open77_weather restarts
+Config.versionCheck = true
+```
+
+A weather added to open77_weather must also be added to `Config.weathers`.

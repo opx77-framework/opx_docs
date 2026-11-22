@@ -1,0 +1,57 @@
+---
+title: opx_character
+description: Character selection screen. Pick, create or delete a character, spawn, and /logout.
+---
+
+<ResourceLinks repo="opx_character" />
+
+Character selection screen: pick, create or delete a character, spawn at the last position, and `/logout` back to the list without reconnecting. The look is stored per character by `open77_appearance`; new characters go through the creator provider of opx_core.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+- [opx_dialog](/docs/opx_dialog)
+- open77_appearance `>= 0.5.0`
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_character.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_dialog",
+"opx_creator",
+"opx_character"
+```
+
+Do not load `open77_creator`. The `opx_character_previews` table is created at start; without a database the selection previews are off.
+
+### Config [step]
+
+Everything is in `config.lua`. Measure your own spots in game.
+
+```lua
+Config.creation.spot = { x = -1600.14, y = -2340.76, z = 43.25, heading = 139.65 } -- where a new character is created
+Config.defaultSpawn = { x = -1600.14, y = -2340.76, z = 43.25, heading = 139.65 } -- spawn without a valid last position
+Config.allowDelete = true          -- players may delete their characters
+Config.logout.enabled = true       -- /logout command
+Config.logout.cooldown = 60        -- seconds between two logouts, and after a spawn
+Config.identity.minAge = 18        -- creation form, counted against 2077
+Config.versionCheck = true
+```
+
+## Usage
+
+- Up / Down (or W / S): choose a card.
+- Enter / Space: play, or create on a free slot.
+- N: create a character.
+- Delete: delete the selected character (`Config.allowDelete`).
+- `/logout`: save and go back to the selection. Refused while dead, in a vehicle or during the cooldown.

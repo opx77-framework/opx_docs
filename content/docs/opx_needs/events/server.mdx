@@ -1,0 +1,14 @@
+---
+title: Server
+---
+
+### opx:needs:starving
+
+Triggered when a need reaches 0 (decay, `SetNeed` or `AddNeed`).
+
+```lua
+AddEventHandler('opx:needs:starving', function(source, key) end)
+```
+
+- source: `number`
+- key: `'hunger'` or `'thirst'`

@@ -1,0 +1,90 @@
+---
+title: Server
+---
+
+Call `Open` and `IsOpen` through `exports.opx_core:OpenCreator(playerId, options)` so the creator stays replaceable. `Close` and `GetSession` are opx_creator only.
+
+## Open
+
+Opens the creator for a player. Re-opening over your own session adopts it (same token); another resource's session answers `'already_open'`. Does not yield.
+
+```lua
+exports.opx_creator:Open(playerId, options)
+```
+
+- playerId: `number`
+- options?: `table`
+  - mode?: `'creation'` or `'edit'` (default `'edit'`)
+  - canCancel?: `boolean` (default `true` in edit, `false` in creation)
+  - scope?: `string` a key of `Config.scopes` (default `'full'`)
+  - entries?: `string[]` rail entries shown, wins over `scope`. Without `'profile'` the body type cannot change.
+    - `'profile'`, `'body'`, `'face'`, `'eyes'`, `'hair'`, `'makeup'`, `'marks'`, `'clothes'`, `'headwear'`, or a `Config.categories` id
+  - start?: `string` entry shown first
+  - title?: `string` up to 64 bytes
+  - subtitle?: `string` up to 160 bytes
+  - tag?: `string` your own mark (1 to 64 bytes), given back in the events' `info`
+  - confirmLabel?: `string` Confirm button text, cut to 32 bytes
+
+**Returns**
+
+- ok: `boolean`
+- tokenOrReason: `string`
+  - Session token on success, else `'invalid_player'`, `'invalid_options'`, `'appearance_not_ready'`, `'busy'`, `'already_open'`, `'no_provider'`, `'uniform_active'`
+
+```lua
+local ok, reason = exports.opx_core:OpenCreator(source, { scope = 'clothing', tag = 'shop:kabuki', confirmLabel = 'Pay 150 E$' })
+```
+
+## IsOpen
+
+```lua
+exports.opx_creator:IsOpen(playerId)
+```
+
+- playerId: `number`
+
+**Returns**
+
+- open: `boolean`
+
+## Close
+
+Closes a player's creator without a save and puts back the body from before opening. Raises `opx:creator:closed`.
+
+```lua
+exports.opx_creator:Close(playerId, reason)
+```
+
+- playerId: `number`
+- reason?: `string`
+  - Letters, digits and `_`, up to 32 bytes. Default `'closed'`.
+
+**Returns**
+
+- ok: `boolean`
+- err?: `'not_open'` or `'busy'` (a save is being applied)
+
+## GetSession
+
+Copy of a player's open session.
+
+```lua
+exports.opx_creator:GetSession(playerId)
+```
+
+- playerId: `number`
+
+**Returns**
+
+- session?: `table`
+  - token: `string`
+  - opener: `string` resource the session belongs to
+  - tag?: `string`
+  - mode: `'creation'` or `'edit'`
+  - canCancel: `boolean`
+  - shown: `boolean`
+  - saving: `boolean`
+  - entries?: `string[]`
+  - characterKey: `string`
+  - openedAt: `number` `GetGameTimer()` at open
+  - scope?: `string`

@@ -11,7 +11,7 @@ import { notFound } from "next/navigation";
 import { getMDXComponents } from "@/components/mdx";
 import type { Metadata } from "next";
 import { createRelativeLink } from "fumadocs-ui/mdx";
-import { appName, basePath, sourceUrl } from "@/lib/shared";
+import { appName, basePath, gitConfig } from "@/lib/shared";
 
 export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
   const params = await props.params;
@@ -25,7 +25,7 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
     <div className="flex flex-row gap-2">
       <ViewOptionsPopover markdownUrl={markdownUrl} />
       <EditOnGitHub
-        href={sourceUrl(page.path)}
+        href={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/docs/${page.path}`}
       />
     </div>
   );

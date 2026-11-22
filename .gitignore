@@ -15,5 +15,3 @@ Thumbs.db
 .idea/
 .vscode/
 
-# Generated at build time by scripts/build-content.mjs
-content/

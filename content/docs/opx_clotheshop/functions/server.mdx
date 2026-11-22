@@ -1,0 +1,41 @@
+---
+title: Server
+---
+
+## GetPoints
+
+Copies of the valid points, in config order.
+
+```lua
+exports.opx_clotheshop:GetPoints()
+```
+
+**Returns**
+
+- points: `table[]`
+  - name: `string`
+  - type: `string` creator scope
+  - label: `string`
+  - price: `number`
+  - x, y, z: `number`
+  - radius: `number`
+  - bucket: `number`
+  - society: `string` or `false`
+  - jobs: `table<string, number>` or `false`
+
+## OpenPoint
+
+Opens a point for a player without the position check, for your own vendor NPC or target option. The job rule and the price still apply. The session ends beyond `Config.sessionDistance` metres, on unload, disconnect, or when your resource stops.
+
+```lua
+exports.opx_clotheshop:OpenPoint(source, name)
+```
+
+- source: `number`
+- name: `string` point name
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'invalid_player'`, `'unknown_point'`, `'not_loaded'`, `'dead'`, `'not_allowed'`

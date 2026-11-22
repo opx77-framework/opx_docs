@@ -1,0 +1,161 @@
+---
+title: Client
+---
+
+opx_hud fills the `hud` slot: find the provider with `Open77.exports.callSync('opx_core', 'GetProvider', 'hud')` (`nil` when none runs). A replacement only has to implement `SetVisible`, `IsVisible`, `ShowHelp` and `HideHelp`: call the other exports under `pcall`. For the whole-HUD toggle, prefer opx_core's `SetHudVisible`.
+
+## ShowHelp
+
+Shows one help line with a key cap. Replaces the current line; drawn only while the HUD itself is drawn.
+
+```lua
+Open77.exports.callSync('opx_hud', 'ShowHelp', text, key)
+```
+
+- text: `string`
+  - Up to 160 characters.
+- key?: `string`
+  - Key cap label, up to 16 characters, upper-cased. Omitted: no key cap.
+
+**Returns**
+
+- shown: `boolean`
+  - `false` when `text` is empty.
+
+```lua
+Open77.exports.callSync('opx_hud', 'ShowHelp', 'Open the door', 'E')
+```
+
+## HideHelp
+
+Hides the help line, only if this resource showed it.
+
+```lua
+Open77.exports.callSync('opx_hud', 'HideHelp')
+```
+
+**Returns**
+
+- hidden: `boolean`
+  - `false` when the line belongs to another resource.
+
+## SetVisible
+
+Script-level visibility of the whole HUD. One shared flag: the last call wins.
+
+```lua
+Open77.exports.callSync('opx_hud', 'SetVisible', visible)
+```
+
+- visible: `boolean`
+  - `nil` counts as `true`.
+
+**Returns**
+
+- ok: `true`
+
+## IsVisible
+
+The last `SetVisible` value (default `true`), not whether the HUD is drawn.
+
+```lua
+Open77.exports.callSync('opx_hud', 'IsVisible')
+```
+
+**Returns**
+
+- visible: `boolean`
+
+## IsShown
+
+True while the HUD is on screen right now: character loaded, `SetVisible` not `false`, not hidden with `/hud`, no menu owns the screen, creator closed.
+
+```lua
+Open77.exports.callSync('opx_hud', 'IsShown')
+```
+
+**Returns**
+
+- shown: `boolean`
+
+## SetBlockVisible
+
+Hides one block for this resource, or gives it back. A block stays hidden while at least one resource hides it; claims end when the resource stops.
+
+```lua
+Open77.exports.callSync('opx_hud', 'SetBlockVisible', block, visible)
+```
+
+- block: `'status'`, `'info'`, `'vehicle'`, `'voice'`, `'help'`
+- visible: `boolean`
+  - `false` hides; anything else gives it back.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_block'`
+
+## IsBlockVisible
+
+False while a resource hides that block.
+
+```lua
+Open77.exports.callSync('opx_hud', 'IsBlockVisible', block)
+```
+
+- block: `'status'`, `'info'`, `'vehicle'`, `'voice'`, `'help'`
+
+**Returns**
+
+- visible?: `boolean`
+  - `nil` for an unknown block.
+
+## SetCustomStatus
+
+Adds, updates or removes an extra gauge in the biomonitor, after hunger and thirst. Ids are per resource; its gauges go away when it stops. `Config.status.customMax` (2) at once.
+
+```lua
+Open77.exports.callSync('opx_hud', 'SetCustomStatus', id, data)
+```
+
+- id: `string`
+  - 1 to 32 characters of `[A-Za-z0-9_.:-]`.
+- data: `table`, `number`, `nil` or `false`
+  - `table`: adds or replaces the gauge.
+    - label: `string`
+      - Up to 16 characters, upper-cased. Required when the gauge is created.
+    - value: `number`
+      - `0` to `100`.
+    - lowAt?: `number` or `false`
+      - Red with a pulse at or below. Default `Config.status.lowAt` (33); `false` = never.
+    - highAt?: `number`
+      - Red with a pulse at or above. Default none.
+  - `number`: updates the value of an existing gauge.
+  - `nil` / `false`: removes it.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_id'`, `'invalid_value'`, `'invalid_label'`, `'unknown_id'`, `'too_many'`
+
+```lua
+local hud = function(...) return Open77.exports.callSync('opx_hud', ...) end
+hud('SetCustomStatus', 'oxygen', { label = 'O2', value = 100 })
+hud('SetCustomStatus', 'oxygen', 42)
+hud('RemoveCustomStatus', 'oxygen')
+```
+
+## RemoveCustomStatus
+
+Removes one of this resource's custom gauges. True even when it did not exist.
+
+```lua
+Open77.exports.callSync('opx_hud', 'RemoveCustomStatus', id)
+```
+
+- id: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_id'`

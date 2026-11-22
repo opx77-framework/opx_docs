@@ -1,0 +1,67 @@
+---
+title: Server
+---
+
+### opx:medical:down
+
+A player went down.
+
+```lua
+AddEventHandler('opx:medical:down', function(source, info) end)
+```
+
+- source: `number`
+- info: `table`
+  - cause: `string`
+  - killer?: `number`
+  - position?: `{ x: number, y: number, z: number }`
+  - bucket: `integer`
+  - at: `integer`
+
+### opx:medical:up
+
+A downed player is up again, or his character left while down.
+
+```lua
+AddEventHandler('opx:medical:up', function(source, reason, by) end)
+```
+
+- source: `number`
+- reason: `string`
+  - `'revived'`, `'respawned'`, `'external'`, `'unloaded'`
+- by?: `number`
+  - The reviver, when given to `Revive`.
+
+### opx:medical:call
+
+A downed player called for help.
+
+```lua
+AddEventHandler('opx:medical:call', function(source, call) end)
+```
+
+- source: `number`
+- call: `table`
+  - Same shape as a `GetCalls` row.
+
+### opx:medical:callAck
+
+A responder took the call.
+
+```lua
+AddEventHandler('opx:medical:callAck', function(source, responderSource) end)
+```
+
+- source: `number`
+- responderSource: `number`
+
+### opx:medical:callClosed
+
+```lua
+AddEventHandler('opx:medical:callClosed', function(source, callId, reason) end)
+```
+
+- source: `number`
+- callId: `integer`
+- reason: `string`
+  - An `opx:medical:up` reason, or `'renewed'` (the player sent a new call).

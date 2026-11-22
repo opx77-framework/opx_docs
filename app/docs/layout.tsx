@@ -5,7 +5,7 @@ import "./docs.css";
 
 export default function Layout({ children }: LayoutProps<"/docs">) {
   return (
-    <DocsLayout tree={source.getPageTree()} {...baseOptions()}>
+    <DocsLayout tree={source.getPageTree()} {...baseOptions()} sidebar={{ collapsible: false }}>
       {children}
     </DocsLayout>
   );

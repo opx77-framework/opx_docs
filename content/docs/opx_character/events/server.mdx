@@ -1,0 +1,41 @@
+---
+title: Server
+---
+
+### opx:character:phaseChanged
+
+Triggered on every phase change. Order: `joining`, `selecting`, `leaving`, `creating` (new character only), `playing`. A logout goes `playing`, `leaving`, `joining`, `selecting`.
+
+```lua
+AddEventHandler('opx:character:phaseChanged', function(source, phase, previous) end)
+```
+
+- source: `number`
+- phase: `string`
+- previous: `string`
+
+### opx:character:spawned
+
+Triggered when a character enters the world.
+
+```lua
+AddEventHandler('opx:character:spawned', function(source, citizenId, info) end)
+```
+
+- source: `number`
+- citizenId: `string`
+- info: `table`
+  - citizenId: `string`
+  - creation: `boolean` first spawn after the creator
+  - resumed: `boolean` opx_character restarted while the player was in the world (no placement)
+
+### opx:character:loggedOut
+
+Triggered after a logout went through.
+
+```lua
+AddEventHandler('opx:character:loggedOut', function(source, citizenId) end)
+```
+
+- source: `number`
+- citizenId: `string`

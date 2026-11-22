@@ -1,0 +1,44 @@
+---
+title: Server
+---
+
+All exports are synchronous.
+
+## GetShops
+
+Copies of the valid shops, in config order.
+
+```lua
+exports.opx_shops:GetShops()
+```
+
+**Returns**
+
+- shops: `table[]`
+  - name: `string`
+  - label: `string`
+  - catalogue: `string`
+  - items: `{ item: string, price: integer }[]`
+  - x, y, z: `number`
+  - radius: `number`
+  - bucket: `integer`
+  - society: `string` or `false`
+  - jobs: `table<string, integer>` or `false`
+    - Job name = minimum grade; `false` = everybody.
+
+## OpenShop
+
+Opens a shop's menu for a player without the point check (your own vendor NPC or target option). The job rule still applies. Purchases are then accepted within `Config.sessionDistance` of where the player stood; the session ends on unload, disconnect, or when the calling resource stops.
+
+```lua
+exports.opx_shops:OpenShop(source, name)
+```
+
+- source: `integer`
+- name: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'invalid_player'`, `'unknown_shop'`, `'not_loaded'`, `'dead'`, `'not_allowed'`, `'no_inventory'`

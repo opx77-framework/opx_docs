@@ -1,0 +1,46 @@
+---
+title: opx_bank
+description: Bank menu at ATMs. Deposit, withdraw, transfer to a player and history.
+---
+
+<ResourceLinks repo="opx_bank" />
+
+Bank menu at ATMs: deposit, withdraw, transfer to another player and the last operations. Balances are opx_core's `money` and `bank` accounts.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+- [opx_dialog](/docs/opx_dialog)
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_bank.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_dialog",
+"opx_bank"
+```
+
+The `opx_bank_history` table is created at start.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.locations = { { label = 'ATM - Kabuki Market', x = -1188.30, y = 2006.88, z = 7.82, radius = 2.5, bucket = 0 } }
+Config.requireLocation = true -- keep true on a live server
+Config.key = 'E'              -- rebindable by players
+Config.transferMax = 1000000
+Config.historyLimit = 20
+Config.versionCheck = true
+```

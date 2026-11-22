@@ -1,0 +1,46 @@
+---
+title: Server
+---
+
+### chatMessage
+
+Before a line is delivered. `CancelEvent()` drops it (mute, filter).
+
+```lua
+AddEventHandler('chatMessage', function(playerId, author, text, channelId)
+  CancelEvent()
+end)
+```
+
+- playerId: `number`
+- author: `string`
+- text: `string`
+- channelId: `string`
+
+### chat:message
+
+After a line is accepted.
+
+```lua
+AddEventHandler('chat:message', function(playerId, author, text, channelId) end)
+```
+
+- playerId: `number`
+- author: `string`
+- text: `string`
+- channelId: `string`
+
+## Handled events
+
+The `open77_chat` server API, raised by `Open77.chat.*` or by your resource. `target` is a player id or `-1`.
+
+```lua
+TriggerEvent('chat:addMessage', target, message)
+TriggerEvent('chat:broadcast', message)
+TriggerEvent('chat:clear', target)
+TriggerEvent('chat:setEnabled', enabled, target)
+TriggerEvent('chat:setServerEnabled', enabled)
+TriggerEvent('chat:addSuggestion', target, command, help, parameters)
+TriggerEvent('chat:addSuggestions', target, suggestions)
+TriggerEvent('chat:removeSuggestion', target, command)
+```

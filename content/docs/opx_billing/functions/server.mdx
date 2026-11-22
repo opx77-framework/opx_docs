@@ -1,0 +1,87 @@
+---
+title: Server
+---
+
+Every export is synchronous: `exports.opx_billing:Name(...)` or `Open77.exports.callSync('opx_billing', 'Name', ...)`.
+
+## CreateBill
+
+Creates an unpaid bill from a job to a loaded player and tells him. No distance and no job rule: the caller decides who may bill (`Config.jobs` only applies to `/bill` and the eye).
+
+```lua
+exports.opx_billing:CreateBill(targetSource, job, amount, label, issuerSource)
+```
+
+- targetSource: `number`
+  - The player who owes.
+- job: `string`
+  - A job registered in opx_core. Its society is credited.
+- amount: `integer`
+  - 1 to `Config.maxAmount`.
+- label: `string`
+  - 3 to 64 characters.
+- issuerSource?: `number`
+  - The employee. His name is kept; he gets `Config.commission` when online.
+
+**Returns**
+
+- billId: `string` or `false`
+- reason?: `string`
+  - `'not_ready'`, `'not_loaded'`, `'unknown_job'`, `'invalid_amount'`, `'invalid_label'`, `'too_many'`, `'busy'`
+
+```lua
+local id, reason = exports.opx_billing:CreateBill(target, 'mechanic', 450, 'Repair', source)
+```
+
+## GetBills
+
+Unpaid bills of a player, newest first. Empty when unknown.
+
+```lua
+exports.opx_billing:GetBills(sourceOrCitizenId)
+```
+
+- sourceOrCitizenId: `number` or `string`
+
+**Returns**
+
+- bills: `table[]`
+  - id: `string`
+  - job: `string`
+  - amount: `integer`
+  - label: `string`
+  - issuerName?: `string`
+  - createdAt: `integer`
+    - Unix seconds.
+
+## PayBill
+
+The player pays one of his bills from the first account of `Config.payFrom` that holds the whole amount; the society is credited in the same step. No location check.
+
+```lua
+exports.opx_billing:PayBill(source, billId)
+```
+
+- source: `number`
+- billId: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'not_ready'`, `'not_loaded'`, `'not_found'`, `'not_yours'`, `'busy'`, `'insufficient_funds'`, `'society_unavailable'`, `'core_unavailable'`
+
+## CancelBill
+
+Removes an unpaid bill; nobody pays. The debtor is told when online.
+
+```lua
+exports.opx_billing:CancelBill(billId)
+```
+
+- billId: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_found'`

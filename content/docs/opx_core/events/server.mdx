@@ -1,0 +1,152 @@
+---
+title: Server
+---
+
+Host events: listen with `AddEventHandler`, never `RegisterNetEvent`.
+
+### opx:playerLoaded
+
+A character finished loading.
+
+```lua
+AddEventHandler('opx:playerLoaded', function(source, data) end)
+```
+
+- source: `number`
+- data: `table` (PlayerData, see `GetPlayer`)
+
+### opx:playerUnloaded
+
+Relog, character switch or disconnect.
+
+```lua
+AddEventHandler('opx:playerUnloaded', function(source, citizenId) end)
+```
+
+- source: `number`
+- citizenId: `string`
+
+### opx:characterCreated
+
+```lua
+AddEventHandler('opx:characterCreated', function(source, citizenId) end)
+```
+
+- source: `number`
+- citizenId: `string`
+
+### opx:characterDeleted
+
+Delete your own rows about that character here.
+
+```lua
+AddEventHandler('opx:characterDeleted', function(source, citizenId) end)
+```
+
+- source: `number`
+- citizenId: `string`
+
+### opx:moneyChanged
+
+Every player balance change, raised before the export returns.
+
+```lua
+AddEventHandler('opx:moneyChanged', function(source, account, balance, delta, reason) end)
+```
+
+- source: `number`
+- account: `string`
+- balance: `number`
+- delta: `number`
+- reason: `string`
+
+### opx:societyMoneyChanged
+
+```lua
+AddEventHandler('opx:societyMoneyChanged', function(job, balance, delta, reason) end)
+```
+
+- job: `string`
+- balance: `number`
+- delta: `number`
+- reason: `string`
+
+### opx:jobChanged
+
+New job or grade, duty change, or the job registered / unregistered by its resource.
+
+```lua
+AddEventHandler('opx:jobChanged', function(source, job, previous) end)
+```
+
+- source: `number`
+- job: `table`
+- previous: `table`
+
+### opx:metadataChanged
+
+```lua
+AddEventHandler('opx:metadataChanged', function(source, key, value) end)
+```
+
+- source: `number`
+- key: `string`
+- value: `any` (`nil` when removed)
+
+### opx:jobRegistered
+
+```lua
+AddEventHandler('opx:jobRegistered', function(name, job) end)
+```
+
+- name: `string`
+- job: `table` (definition plus `name` and `resource`)
+
+### opx:jobUnregistered
+
+```lua
+AddEventHandler('opx:jobUnregistered', function(name) end)
+```
+
+- name: `string`
+
+### opx:vehicleSpawned
+
+A car spawned through opx_core.
+
+```lua
+AddEventHandler('opx:vehicleSpawned', function(vehicleId, plate, citizenId) end)
+```
+
+- vehicleId: `number`
+- plate?: `string`
+- citizenId?: `string`
+
+### opx:vehicleStored
+
+An owned car went back to its garage.
+
+```lua
+AddEventHandler('opx:vehicleStored', function(plate) end)
+```
+
+- plate: `string`
+
+### opx:ownedVehicleAdded
+
+```lua
+AddEventHandler('opx:ownedVehicleAdded', function(plate, citizenId, record) end)
+```
+
+- plate: `string`
+- citizenId: `string`
+- record: `string`
+
+### opx:ownedVehicleRemoved
+
+```lua
+AddEventHandler('opx:ownedVehicleRemoved', function(plate, citizenId) end)
+```
+
+- plate: `string`
+- citizenId: `string`

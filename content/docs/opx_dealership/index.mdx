@@ -1,0 +1,55 @@
+---
+title: opx_dealership
+description: Car dealer job. Showroom, test drives, sales and self-service buying.
+---
+
+<ResourceLinks repo="opx_dealership" />
+
+The `cardealer` job: show a model in the showroom, lend a test drive and sell catalogue cars to nearby players. With no dealer on duty, players buy at the desk themselves. Money, jobs and owned cars are opx_core's.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+- [opx_dialog](/docs/opx_dialog)
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_dealership.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_dialog",
+"opx_dealership"
+```
+
+Load it after [opx_society](/docs/opx_society) for the boss menu. No table of its own; the job is registered at start.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.locale = 'en' -- same as opx_core Config.locale
+Config.desk = { label = 'Westbrook Motors', x = -1442.2, y = 127.4, z = 18.1, radius = 3.0, bucket = 0 }
+Config.vehicles = { { record = 'Vehicle.v_sport1_quadra_turbo_player', label = 'Quadra Turbo-R', category = 'sport', price = 60000 } }
+Config.commission = 0.10 -- seller's share, the rest goes to the society
+Config.testDrive = { enabled = true, seconds = 180, plate = 'TEST', max = 5 }
+Config.selfService = { enabled = true, onlyWhenNoDealer = true, priceFactor = 1.1 }
+Config.uniform = false -- or { male = { OuterChest = 'Items.xxx' }, female = { ... } }
+Config.versionCheck = true
+```
+
+## Usage
+
+- `setjob <id> cardealer <grade>`: grades `0` trainee, `1` salesman, `2` manager (boss).
+- `E` at the desk, on duty: show, test drive, or sell to a nearby player (he confirms).
+- Same desk: start / end service, uniform, management (boss grade).
+- `E` at the desk, anybody else: buy from the catalogue at `priceFactor` times the price.

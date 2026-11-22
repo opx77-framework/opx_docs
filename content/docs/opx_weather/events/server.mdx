@@ -1,0 +1,40 @@
+---
+title: Server
+---
+
+### opx:weatherChanged
+
+Every change made through opx_weather. For changes made by anyone, listen to the platform event `onEnvironmentChanged`.
+
+```lua
+AddEventHandler('opx:weatherChanged', function(bucket, state, reason, info) end)
+```
+
+- bucket?: `number` (`nil` = shared sky)
+- state?: `table` (`nil` on `'authority_stopped'`)
+- reason: `string`
+  - `'time'`, `'time_frozen'`, `'time_rate'`, `'weather'`, `'weather_frozen'`, `'preset'`, `'reset'`
+  - `'player_dropped'`, `'player_left'`, `'owner_stopped'`, `'reclaimed'`, `'cleared_externally'`, `'authority_stopped'`, `'restored'`
+- info: `table`
+  - resource?: `string`
+  - preset?: `string`
+  - source?: `number`
+
+### opx:weatherPresetRegistered
+
+Not raised for the presets of `config.lua`.
+
+```lua
+AddEventHandler('opx:weatherPresetRegistered', function(name, preset) end)
+```
+
+- name: `string`
+- preset: `table`
+
+### opx:weatherPresetUnregistered
+
+```lua
+AddEventHandler('opx:weatherPresetUnregistered', function(name) end)
+```
+
+- name: `string`

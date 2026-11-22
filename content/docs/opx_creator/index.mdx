@@ -1,0 +1,55 @@
+---
+title: opx_creator
+description: In-world character creator. Body, face, hair, makeup, marks and clothes.
+---
+
+<ResourceLinks repo="opx_creator" />
+
+In-world character creator around the live character: body type, face, hair, makeup, marks and clothes. Replaces `open77_creator`. A wardrobe, clothing shop or barber is this creator opened in a scope.
+
+## Installation
+
+### Dependencies [step]
+
+- open77_appearance `>= 0.5.0`
+- [opx_core](/docs/opx_core)
+- [opx_skin](/docs/opx_skin) (optional: without a skin provider the clothing entries are hidden)
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_creator.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_skin",
+"opx_creator"
+```
+
+Do not load `open77_creator`, and set the convar `"open77_appearance_creation": "runtime"`. The `opx_creator_looks` table is created at start.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.locale = 'auto'      -- 'auto', 'en' or 'fr'
+Config.command = 'creator'  -- staff command (ACL right command.creator), false = none
+Config.scopes = { full = false, clothing = { 'clothes', 'headwear' }, barber = { 'hair', 'makeup' } } -- add your own
+Config.clothing.starter = { male = { InnerChest = 'Items.TShirt_01_basic_01' }, female = { InnerChest = 'Items.TShirt_01_basic_01' } } -- first clothes
+Config.safety.confirmTwice = { creation = true, edit = false } -- Confirm pressed twice
+Config.reducedMotion = false -- camera cuts instead of travels for everyone
+Config.versionCheck = true
+```
+
+## Usage
+
+- Q / E: turn the character. Mouse wheel: zoom. Drag: turn and pan.
+- Up / Down: pick an option. Left / Right: change it (Shift: 10 garments).
+- R: randomize. Backspace: undo.
+- Tab or 1-9: next entry. Enter: confirm. Esc: cancel (when allowed).
+- `/creator [playerId] [scope]`: open in edit mode (staff, `command.creator`).
+- `/creator [playerId] close`: close it without a save.

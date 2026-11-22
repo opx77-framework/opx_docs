@@ -1,0 +1,53 @@
+---
+title: opx_medical
+description: Downed state, emergency menu, calls for help, hospital respawn, bandage and medkit.
+---
+
+<ResourceLinks repo="opx_medical" />
+
+A character who dies stays down where he fell. An emergency menu lets him call for help, wait, or respawn at the hospital for a fee once a countdown ends. Registers the `bandage` and `medkit` items in the inventory.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_medical.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_medical"
+```
+
+No database. In opx_core's `config.lua`: `Config.providers.medical = 'opx_medical'`. Grant staff `command.revive`.
+
+### Config [step]
+
+Everything is in `config.lua`. Walk the hospital point in game and adjust it.
+
+```lua
+Config.respawn = { enabled = true, delaySeconds = 300, delayNoResponderSeconds = 60, fee = 500, feeSociety = 'traumateam' }
+Config.bleedoutSeconds = 0         -- > 0: automatic hospital respawn after that many seconds
+Config.responderJobType = 'ems'    -- on-duty jobs of this type answer calls
+Config.hospitals = { { label = "Vik's Clinic", x = -1546.0, y = 1231.0, z = 11.6, heading = 180.0, bucket = 0 } }
+Config.persistDown = true          -- reconnecting does not get you up
+Config.items = { bandage = { enabled = true, heal = 25 }, medkit = { enabled = true, heal = 60 } }
+Config.versionCheck = true
+```
+
+## Usage
+
+- `E` (rebindable) while down: reopen the emergency menu.
+- `/sos`: call the responders on duty.
+- `/respawn`: respawn at the nearest hospital once the countdown ended.
+- `/revive [playerId|me]`: staff.
+- `bandage` / `medkit`: heal 25 / 60 points. Refused while down and at full health.

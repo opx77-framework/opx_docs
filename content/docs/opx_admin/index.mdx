@@ -1,0 +1,63 @@
+---
+title: opx_admin
+description: Staff menu on F10. Noclip, teleports, spectate, freeze, warn, kick, ban, reports, time, weather, vehicles.
+---
+
+<ResourceLinks repo="opx_admin" />
+
+Staff menu: noclip, heal and revive, teleports, spectate, freeze, warn, kick, ban, player reports, time and weather, vehicles. The server checks an ACL right for every tool and logs every staff action.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_menu](/docs/opx_menu)
+- [opx_dialog](/docs/opx_dialog)
+- [opx_core](/docs/opx_core) and [opx_weather](/docs/opx_weather) (optional: vehicle and time / weather rows)
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_admin.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_weather",
+"opx_dialog",
+"opx_menu",
+"opx_admin"
+```
+
+The `opx_admin_sanctions` table is created at start (sanction history only).
+
+### Rights [step]
+
+In `acl.jsonc`, then `acl.reload`:
+
+- `command.opx_admin`: open the menu.
+- `command.opx_admin.<tool>` per tool (`command.opx_admin.player.kick`), or `command.opx_admin.*` for all. The wildcard does not grant the menu itself.
+- `command.opx_admin.protected`: cannot be kicked or banned from the menu.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.keys = { menu = 'F10', noclip = 'F9' }     -- false = no key
+Config.tools['player.ban'] = true                 -- false hides a tool for everyone
+Config.world.weathers = { 'sunny', 'rain', 'fog' } -- presets of the weather provider
+Config.vehicles.spawnList = { { label = 'Quadra Turbo-R', record = 'Vehicle.v_sport1_quadra_turbo_r_player' } }
+Config.sanctions.banDurations = { { label = '1 d', seconds = 86400 }, { label = 'Permanent', seconds = 0 } }
+Config.reports.command = 'report'                 -- false = no reports
+Config.versionCheck = true
+```
+
+## Usage
+
+- F10 (`command.opx_admin`): staff menu.
+- F9 (`command.opx_admin.noclip`): noclip. Space / Ctrl up and down, wheel speed, Shift faster, Alt slower.
+- `/report <text>`: any player sends a ticket to the staff.
+- `/coords` (`command.coords`): copy your position to the clipboard.

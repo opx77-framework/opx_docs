@@ -1,0 +1,38 @@
+---
+title: Server
+---
+
+### opx:billing:created
+
+```lua
+AddEventHandler('opx:billing:created', function(billId, citizenId, job, amount, issuerSource) end)
+```
+
+- billId: `string`
+- citizenId: `string`
+  - The debtor.
+- job: `string`
+- amount: `integer`
+- issuerSource?: `number`
+
+### opx:billing:paid
+
+```lua
+AddEventHandler('opx:billing:paid', function(billId, source, job, amount) end)
+```
+
+- billId: `string`
+- source: `number`
+  - The payer.
+- job: `string`
+- amount: `integer`
+
+### opx:billing:cancelled
+
+```lua
+AddEventHandler('opx:billing:cancelled', function(billId, bySource) end)
+```
+
+- billId: `string`
+- bySource?: `number`
+  - `nil` when cancelled through `CancelBill`.

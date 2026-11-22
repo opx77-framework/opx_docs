@@ -1,0 +1,195 @@
+---
+title: Server
+---
+
+Every export is synchronous. Never name the resource, ask opx_core:
+
+```lua
+local medical = exports.opx_core:GetProvider('medical')
+if medical then
+  local ok, down = pcall(Open77.exports.callSync, medical, 'IsDown', source)
+end
+```
+
+## IsDown
+
+```lua
+exports.opx_medical:IsDown(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- down: `boolean`
+
+## GetState
+
+The downed state, or `nil` when the player is not down.
+
+```lua
+exports.opx_medical:GetState(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- state?: `table`
+  - down: `true`
+  - at: `integer`
+    - Unix seconds when he went down.
+  - cause: `string`
+    - `'unknown'`, `'firearm'`, `'melee'`, `'explosion'`, `'fall'`, `'vehicle'`, `'environment'`, `'script'`
+  - position?: `{ x: number, y: number, z: number }`
+  - respawnIn: `integer`
+    - Seconds before the hospital respawn is allowed, `0` = now.
+  - called: `boolean`
+  - responder?: `number`
+
+## Revive
+
+Revives any dead player where he fell. `opx:medical:up` with reason `'revived'` follows.
+
+```lua
+exports.opx_medical:Revive(source, options)
+```
+
+- source: `number`
+- options?: `table`
+  - health?: `number`
+    - Fraction 0.05 to 1, default `Config.revive.health`.
+  - graceMs?: `integer`
+    - Invulnerable window, 0 to 60000, default `Config.revive.graceMs`.
+  - by?: `number`
+    - The reviver, passed on with `opx:medical:up`.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'invalid_player'`, `'not_down'`, `'refused:<platform reason>'`
+
+## Respawn
+
+Respawns a downed player at a hospital: bill (bank first, then cash, coverage applied, never blocks), society credit, respawn. A refused respawn gives the money back.
+
+```lua
+exports.opx_medical:Respawn(source, options)
+```
+
+- source: `number`
+- options?: `table`
+  - force?: `boolean`
+    - Skip the countdown and `Config.respawn.enabled`.
+  - free?: `boolean`
+    - No hospital bill.
+  - hospital?: `integer`
+    - Index in `Config.hospitals`, default the nearest to where he fell.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'invalid_player'`, `'not_down'`, `'busy'`, `'respawn_disabled'`, `'too_early'`, `'no_hospital'`, `'refused:<platform reason>'`
+
+## SetCoverage
+
+Sets or clears the hospital-bill coverage of a loaded player. One per player, owned by the calling resource; cleared on unload, disconnect and when the owner stops.
+
+```lua
+exports.opx_medical:SetCoverage(source, coverage)
+```
+
+- source: `number`
+- coverage?: `table`
+  - `nil` clears it.
+  - respawnFee: `number`
+    - Share of the bill covered, 0 to 1.
+  - label?: `string`
+    - Up to 32 bytes, shown in the emergency menu.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'invalid_player'`, `'invalid_coverage'`, `'not_loaded'`, `'owned_by_other_resource'`
+
+```lua
+exports.opx_medical:SetCoverage(source, { respawnFee = 1, label = 'Trauma Team Gold' })
+```
+
+## GetCoverage
+
+```lua
+exports.opx_medical:GetCoverage(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- coverage?: `{ respawnFee: number, label?: string }`
+
+## GetCalls
+
+Every open call for help, oldest first.
+
+```lua
+exports.opx_medical:GetCalls()
+```
+
+**Returns**
+
+- calls: `table[]`
+  - id: `integer`
+  - source: `number`
+    - The downed player.
+  - position: `{ x: number, y: number, z: number }`
+  - bucket: `integer`
+  - at: `integer`
+  - responder?: `number`
+
+## AckCall
+
+A responder takes a patient's call; the patient is told a unit is on its way.
+
+```lua
+exports.opx_medical:AckCall(patientSource, responderSource)
+```
+
+- patientSource: `number`
+- responderSource: `number`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_player'`, `'no_call'` or `'already_taken'`
+
+## ReleaseCall
+
+Gives a taken call back so another responder may take it.
+
+```lua
+exports.opx_medical:ReleaseCall(patientSource, responderSource)
+```
+
+- patientSource: `number`
+- responderSource: `number`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_player'`, `'no_call'` or `'not_responder'`
+
+## GetResponderCount
+
+On-duty players of a `Config.responderJobType` job, downed ones left out.
+
+```lua
+exports.opx_medical:GetResponderCount()
+```
+
+**Returns**
+
+- count: `integer`

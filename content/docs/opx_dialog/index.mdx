@@ -1,0 +1,47 @@
+---
+title: opx_dialog
+description: Input forms (text, number, checkbox, colour, date, select, password). Client library.
+---
+
+<ResourceLinks repo="opx_dialog" />
+
+Input forms shown as a floating field wheel over the game, one per client. The answers stay on the player's client: nothing is sent to the server or logged.
+
+## Installation
+
+### Dependencies [step]
+
+None.
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_dialog.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_dialog"
+```
+
+Load it before `opx_menu` and every resource that uses it.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.locale = 'auto'           -- 'auto' follows the game language, or 'en' / 'fr'
+Config.maxFields = 16            -- fields per form
+Config.maxTextLength = 256       -- characters per text field (4096 max)
+Config.validationTimeoutMs = 30000 -- a validate callback that runs longer refuses the submission
+Config.theme.accent = '#ff3b47'  -- active field colour, #rrggbb
+Config.versionCheck = true
+```
+
+## Usage
+
+- Tab / Shift+Tab or Up / Down: next or previous field. Mouse and wheel work too.
+- Left / Right: change a select or checkbox. Space: toggle a checkbox.
+- Enter: submit. Escape: cancel.

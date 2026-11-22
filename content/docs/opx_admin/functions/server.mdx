@@ -1,0 +1,166 @@
+---
+title: Server
+---
+
+## AddAction
+
+Adds (or replaces, same resource) a menu row. Removed when your resource stops. Call it on your start and on `onResourceStart` of `opx_admin`.
+
+```lua
+exports.opx_admin:AddAction(def)
+```
+
+- def: `table`
+  - id: `string`
+    - Letters, digits, `_ . -`, up to 48 characters. Built-in tool ids, `'noclip'` and `'protected'` are reserved.
+  - label: `string` or `{ en = '...', fr = '...' }` (up to 64 characters)
+  - event: `string`
+    - Server event raised after the ACL check. Not `open77:*` or `opx_admin:*`.
+  - right?: `string` (default `'command.opx_admin.<id>'`, needed on top of `command.opx_admin`)
+  - section?: `string` (`'self'`, `'players'`, `'world'`, `'vehicles'`, `'server'` or your own, default `'other'`)
+  - icon?: `string`
+  - description?: `string` or `{ en, fr }` (up to 200 characters)
+  - order?: `number` (default `100`)
+  - keepOpen?: `boolean` (menu stays open after use)
+  - target?: `boolean` (row on each player's page; the event gets the chosen player)
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_action'`, `'invalid_id'`, `'invalid_event'`, `'invalid_right'`, `'invalid_section'`, `'invalid_label'`, `'invalid_description'`, `'invalid_icon'`, `'id_taken'`, `'action_limit'`
+  - 32 rows per resource, 128 in all.
+
+```lua
+exports.opx_admin:AddAction({
+  id = 'myres.givekit',
+  label = { en = 'Give a kit', fr = 'Donner un kit' },
+  event = 'myres:adminGiveKit',
+  target = true,
+})
+
+AddEventHandler('myres:adminGiveKit', function(staff, id, targetId)
+  if not exports.opx_admin:CanUse(staff, id) then return end
+  -- give the kit to targetId
+end)
+```
+
+The event is a host event: listen with `AddEventHandler`, never `RegisterNetEvent`. Without `target` the handler gets `(staff, id)`.
+
+## RemoveAction
+
+Removes a row this resource added.
+
+```lua
+exports.opx_admin:RemoveAction(id)
+```
+
+- id: `string`
+
+**Returns**
+
+- removed: `boolean`
+
+## CanUse
+
+Same check as the menu: `command.opx_admin` plus the right of the row or built-in tool.
+
+```lua
+exports.opx_admin:CanUse(playerId, id)
+```
+
+- playerId: `number`
+- id: `string` (an `AddAction` id or a tool id such as `'player.kick'`)
+
+**Returns**
+
+- allowed: `boolean`
+
+## IsStaff
+
+Holds `command.opx_admin`.
+
+```lua
+exports.opx_admin:IsStaff(playerId)
+```
+
+- playerId: `number`
+
+**Returns**
+
+- staff: `boolean`
+
+## IsNoclip
+
+```lua
+exports.opx_admin:IsNoclip(playerId)
+```
+
+- playerId: `number`
+
+**Returns**
+
+- noclip: `boolean`
+
+## IsFrozen
+
+Held still by this resource's freeze tool (a freeze by another resource does not count).
+
+```lua
+exports.opx_admin:IsFrozen(playerId)
+```
+
+- playerId: `number`
+
+**Returns**
+
+- frozen: `boolean`
+
+## GetActions
+
+Every row added with `AddAction`, sorted by id.
+
+```lua
+exports.opx_admin:GetActions()
+```
+
+**Returns**
+
+- actions: `table[]`
+  - id, resource, event, right, section: `string`
+  - target: `boolean`
+
+## GetTools
+
+Built-in tools and their rights.
+
+```lua
+exports.opx_admin:GetTools()
+```
+
+**Returns**
+
+- tools: `table[]`
+  - id: `string` (`'self.heal'`, `'player.kick'`, `'world.time'`...)
+  - section: `string`
+  - right: `string` (`'command.opx_admin.<id>'`)
+  - target: `boolean` (acts on another player)
+  - enabled: `boolean` (`Config.tools[id]`)
+
+## GetReports
+
+Open report tickets, oldest first. In memory: a restart of opx_admin empties the list.
+
+```lua
+exports.opx_admin:GetReports()
+```
+
+**Returns**
+
+- reports: `table[]`
+  - id: `number`
+  - source?: `number` (`nil` once the author left)
+  - name: `string`
+  - userId?: `string`
+  - text: `string`
+  - at: `string` (UTC)
+  - takenBy?: `string`

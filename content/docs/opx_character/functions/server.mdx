@@ -1,0 +1,62 @@
+---
+title: Server
+---
+
+## Logout
+
+Saves, unloads and sends the player back to the selection screen, like `/logout`. Works even when `Config.logout.enabled = false`.
+
+```lua
+exports.opx_character:Logout(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'invalid_player'`, `'not_playing'`, `'logout_cooldown'`, `'logout_dead'`, `'logout_vehicle'`
+
+## IsSelecting
+
+True while the player has no character in the world (joining, selecting, leaving or creating).
+
+```lua
+exports.opx_character:IsSelecting(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- selecting: `boolean`
+
+## GetPhase
+
+Current phase of the player.
+
+```lua
+exports.opx_character:GetPhase(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- phase?: `string`
+  - `'joining'`, `'selecting'`, `'leaving'`, `'creating'`, `'playing'`
+
+## GetCitizenId
+
+Citizen id played (`'playing'`) or being created (`'creating'`), else `nil`.
+
+```lua
+exports.opx_character:GetCitizenId(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- citizenId?: `string`

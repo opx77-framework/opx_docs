@@ -1,0 +1,50 @@
+---
+title: Server
+---
+
+### opx:traumateam:subscribed
+
+A plan was bought or extended.
+
+```lua
+AddEventHandler('opx:traumateam:subscribed', function(source, tier, expiresAt) end)
+```
+
+- source: `number`
+- tier: `string`
+- expiresAt: `integer`
+
+### opx:traumateam:revived
+
+A Trauma Team revive.
+
+```lua
+AddEventHandler('opx:traumateam:revived', function(medic, patient, fee, covered) end)
+```
+
+- medic: `number`
+- patient: `number`
+- fee: `integer`
+  - Before coverage.
+- covered: `integer`
+
+### opx:traumateam:treated
+
+```lua
+AddEventHandler('opx:traumateam:treated', function(medic, patient, fee) end)
+```
+
+- medic: `number`
+- patient: `number`
+- fee: `integer`
+
+### opx:traumateam:duty
+
+A member's service started or ended (station, staff command, fired).
+
+```lua
+AddEventHandler('opx:traumateam:duty', function(source, onDuty) end)
+```
+
+- source: `number`
+- onDuty: `boolean`

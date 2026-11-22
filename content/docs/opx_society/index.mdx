@@ -1,0 +1,53 @@
+---
+title: opx_society
+description: Boss menu shared by every job. Society balance, deposit, withdraw, hire, promote, demote, fire.
+---
+
+<ResourceLinks repo="opx_society" />
+
+Boss menu every job resource opens from its own station: society balance, deposit, withdraw, hire, promote, demote and fire. Jobs, grades and balances are opx_core's; no table of its own.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+- [opx_dialog](/docs/opx_dialog)
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_society.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_dialog",
+"opx_society"
+```
+
+Load it before the job resources. In opx_core's `config.lua`: `Config.providers.society = 'opx_society'`.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.fallbackJob = 'unemployed' -- job given on fire
+Config.hireDistance = 3.0         -- metres around the boss listed by "Hire"
+Config.offerSeconds = 20          -- time to accept a job offer
+Config.maxAmount = 1000000000     -- largest deposit or withdrawal
+Config.allowCoBoss = false        -- true: promote up to the boss's own grade
+Config.sessionDistance = 10.0     -- metres from where the menu opened
+Config.versionCheck = true
+```
+
+## Usage
+
+- A boss only manages loaded employees strictly below his grade (up to his own with `Config.allowCoBoss`).
+- Hire: nearby players get a yes / no offer and join at grade 0.
+- `/bossmenu`: testing only, with `Config.debug = true` and ACL `command.bossmenu`.

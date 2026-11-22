@@ -1,0 +1,124 @@
+---
+title: Server
+---
+
+Post plain lines with the platform API: `Open77.chat.send(playerId, { type = 'system', author = 'GARAGE', text = '...' })`.
+
+## RegisterChannel
+
+Adds a channel owned by the calling resource. Removed when it stops and lost when opx_chat restarts: register again on `onResourceStart` of `opx_chat`.
+
+```lua
+exports.opx_chat:RegisterChannel(id, definition)
+```
+
+- id: `string` (`[%w_-]`, up to 32)
+- definition: `table`
+  - command?: `string` or `false` (word after `/`, default the id; `false` = no command)
+  - label?: `string` or `{ en = '...', fr = '...' }` (up to 16, default the id)
+  - color?: `string` (`'#rrggbb'`, default `'#4fe3ff'`)
+  - range?: `number` (metres, `0` = everyone, max 1000)
+  - cooldown?: `number` (seconds between two messages of one player)
+  - style?: `'say'`, `'action'`, `'describe'`, `'ooc'`, `'post'`, `'announce'`
+  - ic?: `boolean` (in character: character name, needs a loaded character)
+  - bucket?: `boolean` (range `0` only: sender's routing bucket)
+  - restricted?: `boolean` (ACL right `command.<command>`)
+  - jobs?: `string[]` (opx_core job names that may send and receive)
+  - onDuty?: `boolean` (with `jobs`)
+  - help?: `string` or `{ en, fr }` (up to 160)
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_channel_id'`, `'channel_exists'`, `'invalid_definition'`, `'invalid_command'`, `'command_taken'`, `'invalid_label'`, `'invalid_color'`, `'invalid_range'`, `'invalid_cooldown'`, `'invalid_style'`, `'invalid_jobs'`, `'invalid_help'`
+
+```lua
+exports.opx_chat:RegisterChannel('police', {
+  command = 'pd', label = 'NCPD', color = '#3b82f6', range = 0, ic = true, jobs = { 'police' }, onDuty = true,
+})
+```
+
+## RemoveChannel
+
+Removes a channel this resource registered.
+
+```lua
+exports.opx_chat:RemoveChannel(id)
+```
+
+- id: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'unknown_channel'`, `'not_owner'`, `'config_channel'`
+
+## GetChannel
+
+```lua
+exports.opx_chat:GetChannel(id)
+```
+
+- id: `string`
+
+**Returns**
+
+- channel?: `table` (the definition plus `id` and `owner`: `'config'` or the registering resource)
+
+## GetChannels
+
+Every enabled channel, sorted by id.
+
+```lua
+exports.opx_chat:GetChannels()
+```
+
+**Returns**
+
+- channels: `table[]` (same shape as `GetChannel`)
+
+## Say
+
+Sends a line on a channel as if the player typed it (same cleaning and checks). `true` means accepted; a `chatMessage` veto can still drop it.
+
+```lua
+exports.opx_chat:Say(playerId, channelId, text)
+```
+
+- playerId: `number`
+- channelId: `string`
+- text: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_player'`, `'chat_disabled'`, `'unknown_channel'`, `'invalid_text'`, `'empty'`, `'denied'`, `'job'`, `'duty'`, `'character'`, `'cooldown'`, `'repeat'`, `'rate'`
+- secondsLeft?: `number` (with `'cooldown'`, `'repeat'`, `'rate'`)
+
+## SetCommandHelp
+
+Help and arguments shown in the suggestion of a server command the calling resource registered. Call it again on `onResourceStart` of `opx_chat`.
+
+```lua
+exports.opx_chat:SetCommandHelp(name, help, parameters)
+```
+
+- name: `string` (`[%w_.:-]`, up to 64)
+- help?: `string` or `{ en, fr }` (200 bytes per text)
+- parameters?: `table[]` (up to 8)
+  - name: `string` or `{ en, fr }`
+  - help?: `string` or `{ en, fr }`
+  - optional?: `boolean`
+
+`help` and `parameters` both `nil` remove it.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_command'`, `'invalid_help'`, `'invalid_parameters'`, `'help_limit'`
+
+```lua
+exports.opx_chat:SetCommandHelp('fine', 'Fine a player', {
+  { name = 'id' }, { name = 'amount' }, { name = 'reason', optional = true },
+})
+```

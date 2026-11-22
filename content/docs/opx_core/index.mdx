@@ -1,0 +1,51 @@
+---
+title: opx_core
+description: Characters, money, jobs, metadata, callbacks, owned vehicles and the provider slots.
+---
+
+<ResourceLinks repo="opx_core" />
+
+The base of OPX//77: accounts and characters, money and society accounts, jobs and duty, metadata, paychecks, server callbacks and owned vehicles. It also names the resource that fills each replaceable slot (`Config.providers`).
+
+## Installation
+
+### Dependencies [step]
+
+- MySQL / MariaDB enabled in `server.jsonc` (`database.enabled = true`).
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_core.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core"
+```
+
+First of the OPX resources. The `opx_users`, `opx_characters`, `opx_vehicles` and `opx_societies` tables are created at start.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.locale = 'en'                                -- 'en' or 'fr'
+Config.startingMoney = { money = 500, bank = 5000 } -- new character
+Config.slots = { default = 3, byIdentifier = {} }   -- characters per account
+Config.paycheck = { intervalMinutes = 10, account = 'bank', requiresDuty = true }
+Config.commands = { setjob = 'setjob', car = 'car' } -- false = command not registered
+Config.providers = { notify = 'opx_notification', hud = 'opx_hud' } -- resource per slot, false = none
+Config.versionCheck = true
+```
+
+## Usage
+
+Staff commands, each restricted to the ACL right `command.<name>`. `<id>` is a server id or `me`.
+
+- `setjob <id> <job> [grade]`, `setduty <id> <on|off>`
+- `addmoney <id> <account> <amount>`, `setmoney <id> <account> <amount>` (`2500`, `2.5k`, `1m`)
+- `societymoney <job> [add|remove <amount>]`
+- `car <record> [plate]`, `givecar <id> <record> [plate]`, `dv`

@@ -1,0 +1,59 @@
+---
+title: Server
+---
+
+Every export is synchronous. Job resources never name the provider:
+
+```lua
+local society = exports.opx_core:GetProvider('society')
+local ok, isBoss = pcall(Open77.exports.callSync, society, 'IsBoss', source, 'police')
+```
+
+## OpenBossMenu
+
+Opens the boss menu for a player who holds the job at boss grade. No location check: you decide where. The menu then stays bound to where it opened (`Config.sessionDistance`).
+
+```lua
+exports.opx_society:OpenBossMenu(source, jobName)
+```
+
+- source: `number`
+- jobName?: `string`
+  - Default: the player's own job.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'not_loaded'`, `'unknown_job'`, `'wrong_job'`, `'not_boss'`, `'position_unknown'`
+
+## IsBoss
+
+Whether a loaded character holds the job at its boss grade or above. Duty does not matter.
+
+```lua
+exports.opx_society:IsBoss(source, jobName)
+```
+
+- source: `number`
+- jobName?: `string`
+  - Default: the player's own job.
+
+**Returns**
+
+- isBoss: `boolean`
+
+## GetBossGrade
+
+Boss grade of a registered job: `data.bossGrade` from opx_core's `RegisterJob` when it is one of its grades, else its highest grade.
+
+```lua
+exports.opx_society:GetBossGrade(jobName)
+```
+
+- jobName: `string`
+
+**Returns**
+
+- grade?: `integer`
+  - `nil` for an unknown job.

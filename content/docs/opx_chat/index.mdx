@@ -1,0 +1,52 @@
+---
+title: opx_chat
+description: Roleplay chat. Proximity and RP channels, slash commands with completion.
+---
+
+<ResourceLinks repo="opx_chat" />
+
+Roleplay chat: RP channels (`/me`, `/do`, `/ooc`, `/looc`...) and slash commands with completion. The server decides who receives each line (distance, routing bucket, job). Drop-in replacement for `open77_chat`: same `Open77.chat.*` API and `chat:*` events.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core) (optional: character names, job channels)
+
+Do not load `open77_chat` next to it: every line would be sent twice.
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_chat.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_chat"
+```
+
+Grant staff `command.announce` in `acl.jsonc` (and `command.<name>` for any `restricted` channel).
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.openKey = 'T'                 -- rebindable by players
+Config.nameMode = 'character'        -- IC name: 'character', 'id' or 'both'
+Config.position = { anchor = 'center-left', x = 32, y = 40, width = 540 }
+Config.rateLimit = { count = 5, window = 8 } -- messages per player per window (seconds)
+Config.channels.twt.enabled = true   -- each channel: enabled, range, cooldown, color, jobs...
+Config.commands = { clear = 'clear', help = 'help', id = 'id' } -- false disables one
+Config.versionCheck = true
+```
+
+## Usage
+
+- T: open the chat. Enter sends, Escape closes, Up / Down history or suggestions, Tab completes.
+- Plain text: local talk (15 m). `/me`, `/do`, `/looc`: 20 m. `/ooc`: everyone.
+- `/clear`, `/help`, `/id`: empty your chat, list channels, show your id.
+- `/announce <text>` (`command.announce`): announcement to everyone, also from the console.

@@ -1,0 +1,40 @@
+---
+title: Server
+---
+
+### opx:admin:audit
+
+Every accepted staff action (not raised for refusals or failures).
+
+```lua
+AddEventHandler('opx:admin:audit', function(staff, action, detail) end)
+```
+
+- staff: `number`
+- action: `string` (`'tool player.ban'`, `'menu opened'`, `'noclip on'`, `'action <id>'`...)
+- detail: `string` (up to 255 bytes, `''` when none)
+
+### opx:admin:sanction
+
+```lua
+AddEventHandler('opx:admin:sanction', function(staff, kind, userId, name, reason, seconds) end)
+```
+
+- staff: `number`
+- kind: `'warn'`, `'kick'`, `'ban'`, `'unban'`
+- userId: `string`
+- name: `string` (account name)
+- reason: `string` (`''` for an unban)
+- seconds: `number` (ban duration; `0` = permanent or not a ban)
+
+### opx:admin:report
+
+A player sent `/report`.
+
+```lua
+AddEventHandler('opx:admin:report', function(source, ticketId, text) end)
+```
+
+- source: `number`
+- ticketId: `number`
+- text: `string`

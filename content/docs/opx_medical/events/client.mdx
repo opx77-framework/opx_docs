@@ -1,0 +1,33 @@
+---
+title: Client
+---
+
+### opx:medical:down
+
+The local player went down. Sent again after a client restart while down; later updates are internal.
+
+```lua
+RegisterNetEvent('opx:medical:down', function(state) end)
+```
+
+- state: `table`
+  - respawnIn: `integer`
+    - Seconds.
+  - canRespawn: `boolean`
+  - responders: `integer`
+  - called: `boolean`
+  - acked: `boolean`
+  - fee: `integer`
+    - Hospital bill now, coverage applied.
+  - coverageLabel?: `string`
+  - bleedoutIn?: `integer`
+    - Seconds before the automatic respawn.
+
+### opx:medical:up
+
+```lua
+RegisterNetEvent('opx:medical:up', function(reason) end)
+```
+
+- reason: `string`
+  - `'revived'`, `'respawned'`, `'external'`, `'unloaded'`

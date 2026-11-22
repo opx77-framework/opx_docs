@@ -1,0 +1,52 @@
+---
+title: opx_emotes
+description: Emote menu over open77_animations, with hands-up and point keys.
+---
+
+<ResourceLinks repo="opx_emotes" />
+
+Emote menu over the official `open77_animations`, plus hands-up and point keys. Client only: no server export, no event, no table.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+- open77_animations (used while it runs; without it the keys say "unavailable")
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_emotes.git
+```
+
+### Start order [step]
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_emotes"
+```
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.keys = { menu = 'F3', handsup = 'Y', point = 'B' } -- default keys, false = none
+Config.command = 'e'                -- /e, false = no command
+Config.categories = { 'gestures', 'emotions', 'social', 'dance' } -- menu categories, in order
+Config.hidden = { 'carry', 'give', 'drink' } -- never in the menu nor /e (Play still accepts them)
+Config.blockWhenDown = true         -- no emote while the player is down
+Config.targetOption = true          -- "Emotes" on yourself in opx_target
+Config.versionCheck = true
+```
+
+## Usage
+
+- F3: emote menu. A new emote replaces the previous one.
+- Y: hands up / down.
+- B: point in the camera direction / stop.
+- `/e` opens the menu, `/e wave` plays an emote, `/e stop` stops it. `/anim` opens the same menu.
+- Every key is rebindable.

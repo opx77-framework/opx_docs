@@ -1,0 +1,79 @@
+---
+title: Client
+---
+
+Find the provider with opx_core's `OPX.GetProvider('progress')` or `Open77.exports.callSync('opx_core', 'GetProvider', 'progress')`, so a replacement resource works too.
+
+## Start
+
+Runs one timed action and waits for its end. It waits, so call it with `Open77.exports.call(...):await()` from a thread: `callSync` answers `export_yielded`.
+
+```lua
+Open77.exports.call('opx_progress', 'Start', options):await()
+```
+
+- options: `table`
+  - label: `string`
+    - Shown in caps above the bar, up to 80 characters.
+  - duration: `number`
+    - ms, clamped to `250` to `120000`.
+  - canCancel?: `boolean`
+    - Default `true`: the cancel key ends it with `'cancelled'`.
+  - disableMovement?: `boolean`
+    - Blocks `Config.actions.movement` while it runs.
+  - disableCombat?: `boolean`
+    - Blocks `Config.actions.combat` while it runs.
+  - disableVehicle?: `boolean`
+    - Refused, or ended, with `'in_vehicle'` while the player is in a vehicle seat.
+  - animation?: `table`
+    - profile: `string`
+      - An `open77_animations` profile id (`'repair'`, `'mechanic'`, `'tablet'`, `'phone'`, `'examine'`...).
+    - clip?: `string`
+    - Played only when `open77_animations` runs.
+
+**Returns**
+
+- ok: `boolean`
+  - `true` when the full duration elapsed.
+- reason?: `string`
+  - `'cancelled'`, `'busy'`, `'dead'`, `'in_vehicle'`, `'stopped'`, `'invalid_options'`, `'invalid_label'`, `'invalid_duration'`, `'invalid_animation'`
+
+A `nil` pending call or `nil, reason` from `await` means the provider is not running or stopped: treat it as not done. Never reward on this result alone, the server keeps its own checks.
+
+```lua
+local OPX = require('@opx_core')
+
+CreateThread(function()
+    local provider = OPX.GetProvider('progress')
+    local pending = provider and Open77.exports.call(provider, 'Start', {
+        label = 'Repairing', duration = 8000, disableMovement = true, animation = { profile = 'mechanic' },
+    })
+    local ok = pending and pending:await()
+    if ok then TriggerServerEvent('myres:repaired') end
+end)
+```
+
+## IsActive
+
+True while an action runs on this client, whoever started it.
+
+```lua
+Open77.exports.callSync('opx_progress', 'IsActive')
+```
+
+**Returns**
+
+- active: `boolean`
+
+## Cancel
+
+Ends the running action with `'cancelled'`, whatever its `canCancel`.
+
+```lua
+Open77.exports.callSync('opx_progress', 'Cancel')
+```
+
+**Returns**
+
+- cancelled: `boolean`
+  - `false` when nothing was running.

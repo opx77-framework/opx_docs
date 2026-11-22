@@ -1,0 +1,111 @@
+---
+title: Server
+---
+
+All exports are synchronous. Other resources call them through the provider, so a replacement works:
+
+```lua
+local keys = exports.opx_core:GetProvider('vehiclekeys')
+local ok, has = pcall(Open77.exports.callSync, keys, 'HasKey', source, vehicleId)
+```
+
+A vehicle id is a live Open77 vehicle id (`integer`), a plate an opx_core plate (`string`).
+
+## HasKey
+
+Whether the player's character owns the car, holds a stored or temporary key to it, or has `Config.staffRight`.
+
+```lua
+exports.opx_vehiclekeys:HasKey(source, vehicleId)
+```
+
+- source: `integer`
+- vehicleId: `integer`
+
+**Returns**
+
+- hasKey: `boolean`
+
+## GiveKey
+
+Gives a key to the character of `source`. Already holding it or owning the car returns `true`.
+
+```lua
+exports.opx_vehiclekeys:GiveKey(source, vehicleIdOrPlate, options)
+```
+
+- source: `integer`
+- vehicleIdOrPlate: `integer` or `string`
+- options?: `table`
+  - temporary?: `boolean`
+    - `true`: memory-only key on the live car (rental, test drive), dropped with the car.
+    - Otherwise a stored key on the plate, owned cars only.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'invalid_player'`, `'not_loaded'`, `'unknown_vehicle'`, `'not_owned'`, `'too_many'`, `'not_ready'`
+
+## RemoveKey
+
+Removes the stored and temporary keys a character holds to a car. Works on offline characters.
+
+```lua
+exports.opx_vehiclekeys:RemoveKey(sourceOrCitizenId, vehicleIdOrPlate)
+```
+
+- sourceOrCitizenId: `integer` or `string`
+- vehicleIdOrPlate: `integer` or `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'invalid_player'`, `'not_loaded'`, `'unknown_vehicle'`, `'no_key'`
+
+## GetKeyHolders
+
+Citizen ids holding a stored key to the plate, sorted. The owner and temporary keys are not listed.
+
+```lua
+exports.opx_vehiclekeys:GetKeyHolders(plate)
+```
+
+- plate: `string`
+
+**Returns**
+
+- citizenIds: `string[]`
+
+## SetLocked
+
+Sets the lock of a car. Key holders keep their access.
+
+```lua
+exports.opx_vehiclekeys:SetLocked(vehicleId, locked)
+```
+
+- vehicleId: `integer`
+- locked: `boolean`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+  - `'invalid_vehicle'`, `'invalid_argument'`, or an `Open77.vehicles.setLocked` refusal
+
+## IsLocked
+
+The lock state of a car.
+
+```lua
+exports.opx_vehiclekeys:IsLocked(vehicleId)
+```
+
+- vehicleId: `integer`
+
+**Returns**
+
+- locked?: `boolean`
+  - `nil` for an unknown vehicle.

@@ -1,0 +1,13 @@
+---
+title: Client
+---
+
+### opx:inventory:counts
+
+The whole pockets as totals. Sent when the pockets load, on a client (re)start and after every change, at most once per 250 ms.
+
+```lua
+RegisterNetEvent('opx:inventory:counts', function(counts) end)
+```
+
+- counts: `{ [item]: integer }`

@@ -1,0 +1,275 @@
+---
+title: Server
+---
+
+Every export is synchronous. Reach it through `exports.opx_core:GetProvider('weather')`. `bucket` `nil` (or `0`) is the shared sky; any other bucket gets its own override on first use, owned by the calling resource and removed when it stops.
+
+Setters return the environment state, or `false, reason`. Common reasons: `'environment_unavailable'`, `'invalid_bucket'`, `'unknown_bucket'`, `'too_many_environment_overrides'`.
+
+The state table holds `bucket?`, `hour`, `minute`, `second`, `rate`, `frozen`, `timeFrozen`, `weather`, `weatherFrozen`, `transitionSeconds`, `buckets` and more (see `types.lua`).
+
+## GetState
+
+```lua
+exports.opx_weather:GetState(bucket)
+```
+
+- bucket?: `number`
+
+**Returns**
+
+- state: `table` or `false`
+- reason?: `string` (`'unknown_bucket'`: no override, it follows the shared sky)
+
+## SetTime
+
+```lua
+exports.opx_weather:SetTime(hour, minute, second, bucket)
+```
+
+- hour: `number` (0..23)
+- minute?: `number` (0..59)
+- second?: `number` (0..59)
+- bucket?: `number`
+
+**Returns**
+
+- state: `table` or `false`
+- reason?: `'invalid_time'`, ...
+
+## FreezeTime
+
+```lua
+exports.opx_weather:FreezeTime(frozen, bucket)
+```
+
+- frozen: `boolean`
+- bucket?: `number`
+
+**Returns**
+
+- state: `table` or `false`
+- reason?: `string`
+
+## SetTimeRate
+
+```lua
+exports.opx_weather:SetTimeRate(rate, bucket)
+```
+
+- rate: `number`
+  - Game seconds per real second, 0 to 120 (`8` = engine speed).
+- bucket?: `number`
+
+**Returns**
+
+- state: `table` or `false`
+- reason?: `'invalid_rate'`, ...
+
+## SetWeather
+
+```lua
+exports.opx_weather:SetWeather(preset, transitionSeconds, bucket)
+```
+
+- preset: `string`
+  - Weather name, alias or REDengine preset: `'sunny'`, `'lightclouds'`, `'cloudy'`, `'heavyclouds'`, `'rain'`, `'fog'`, `'pollution'`, `'sandstorm'`
+- transitionSeconds?: `number` (0 to 300, default `0`)
+- bucket?: `number`
+
+**Returns**
+
+- state: `table` or `false`
+- reason?: `'invalid_weather'`, `'unknown_weather'`, ...
+
+```lua
+exports.opx_weather:SetWeather('rain', 30)
+```
+
+## FreezeWeather
+
+Pins the weather (no random draws) or releases it.
+
+```lua
+exports.opx_weather:FreezeWeather(frozen, bucket)
+```
+
+- frozen: `boolean`
+- bucket?: `number`
+
+**Returns**
+
+- state: `table` or `false`
+- reason?: `string`
+
+## Reset
+
+Retires a bucket override: its players see the shared sky again.
+
+```lua
+exports.opx_weather:Reset(bucket)
+```
+
+- bucket: `number` (never the shared bucket)
+
+**Returns**
+
+- state: `table` or `false` (the shared sky on success)
+- reason?: `string`
+
+## ApplyPreset
+
+```lua
+exports.opx_weather:ApplyPreset(name, bucket)
+```
+
+- name: `string` (`Config.presets` or `RegisterPreset`)
+- bucket?: `number`
+
+**Returns**
+
+- state: `table` or `false`
+- reason?: `'unknown_preset'`, ...
+
+## ApplyToPlayer
+
+Applies a preset to the player's own routing bucket only. One sky per player, released when he disconnects or leaves an empty bucket.
+
+```lua
+exports.opx_weather:ApplyToPlayer(source, name)
+```
+
+- source: `number`
+- name: `string`
+
+**Returns**
+
+- state: `table` or `false`
+- reason?: `'invalid_player'`, `'unknown_preset'`, `'shared_bucket'`, `'bucket_unavailable'`, ...
+
+```lua
+exports.opx_weather:ApplyToPlayer(source, 'showcase')
+```
+
+## ClearPlayer
+
+Gives back the sky `ApplyToPlayer` gave this player (else his current bucket's override).
+
+```lua
+exports.opx_weather:ClearPlayer(source)
+```
+
+- source: `number`
+
+**Returns**
+
+- state: `table` or `false`
+- reason?: `string`
+
+## RegisterPreset
+
+Declares a preset owned by the calling resource (removed when it stops). Prefix the name with your resource.
+
+```lua
+exports.opx_weather:RegisterPreset(name, definition)
+```
+
+- name: `string`
+  - `[a-z][a-z0-9_]+`, 2 to 32 characters.
+- definition: `table` (at least one of time, weather, rate, frozen flags)
+  - time?: `{ hour, minute, second }` or `{ hour = h, minute = m, second = s }`
+  - weather?: `string`
+  - transition?: `number` (0 to 300)
+  - rate?: `number` (0 to 120)
+  - frozen?: `boolean` (stops the clock and pins the weather)
+  - timeFrozen?: `boolean` (overrides `frozen` for the clock)
+  - weatherFrozen?: `boolean` (overrides `frozen` for the weather)
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_name'`, `'preset_taken'`, `'preset_limit'`, `'invalid_preset'`, `'empty_preset'`, `'invalid_time'`, `'unknown_weather'`, `'invalid_transition'`, `'invalid_rate'`
+
+```lua
+exports.opx_weather:RegisterPreset('heist_night', { time = { 2, 0, 0 }, weather = 'fog', frozen = true })
+```
+
+## UnregisterPreset
+
+```lua
+exports.opx_weather:UnregisterPreset(name)
+```
+
+- name: `string`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'unknown_preset'`, `'not_owner'`, `'protected'`
+
+## GetPreset
+
+```lua
+exports.opx_weather:GetPreset(name)
+```
+
+- name: `string`
+
+**Returns**
+
+- preset?: `table` (normalised copy, plus `name` and `resource`)
+
+## GetPresets
+
+```lua
+exports.opx_weather:GetPresets()
+```
+
+**Returns**
+
+- presets: `table<string, table>`
+
+## GetWeathers
+
+Weathers of `Config.weathers`.
+
+```lua
+exports.opx_weather:GetWeathers()
+```
+
+**Returns**
+
+- weathers: `table[]`
+  - name: `string`
+  - preset?: `string` (REDengine value)
+  - aliases: `string[]`
+
+## ResolveWeather
+
+```lua
+exports.opx_weather:ResolveWeather(name)
+```
+
+- name: `string` (name, alias or REDengine preset)
+
+**Returns**
+
+- canonical?: `string`
+
+## GetOverrides
+
+Bucket overrides made through opx_weather, ascending by bucket.
+
+```lua
+exports.opx_weather:GetOverrides()
+```
+
+**Returns**
+
+- overrides: `table[]`
+  - bucket: `number`
+  - resource: `string` (owner)
+  - preset?: `string`
+  - source?: `number` (player of an `ApplyToPlayer` sky)
+  - players: `number`
+  - lost: `boolean` (authority down; restored when it comes back)

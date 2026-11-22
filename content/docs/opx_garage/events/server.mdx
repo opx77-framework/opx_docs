@@ -1,0 +1,39 @@
+---
+title: Server
+---
+
+### opx:garage:taken
+
+A player took a car out of a garage.
+
+```lua
+AddEventHandler('opx:garage:taken', function(source, plate, garage, vehicleId) end)
+```
+
+- source: `integer`
+- plate: `string`
+- garage: `string`
+- vehicleId: `integer`
+
+### opx:garage:stored
+
+A player stored a car.
+
+```lua
+AddEventHandler('opx:garage:stored', function(source, plate, garage) end)
+```
+
+- source: `integer`
+- plate: `string`
+- garage: `string`
+
+### opx:garage:impounded
+
+A car went to the impound (staff command, `Impound` export, or its owner from the garage menu).
+
+```lua
+AddEventHandler('opx:garage:impounded', function(plate, bySource) end)
+```
+
+- plate: `string`
+- bySource?: `integer`

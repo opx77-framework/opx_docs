@@ -1,0 +1,30 @@
+---
+title: Client
+---
+
+With the client library, prefer `OPX.OnPlayerLoaded`, `OPX.OnPlayerData`, `OPX.OnJobChanged` and `OPX.OnMoneyChanged`.
+
+### opx:playerLoaded
+
+```lua
+RegisterNetEvent('opx:playerLoaded', function(data) end)
+```
+
+- data: `table` (PlayerData)
+
+### opx:playerUnloaded
+
+```lua
+RegisterNetEvent('opx:playerUnloaded', function() end)
+```
+
+### opx:setPlayerData
+
+One PlayerData field changed.
+
+```lua
+RegisterNetEvent('opx:setPlayerData', function(key, value) end)
+```
+
+- key: `'accounts'`, `'job'`, `'metadata'`, `'isNew'`, `'family'`
+- value: `any` (the whole new value of that field)

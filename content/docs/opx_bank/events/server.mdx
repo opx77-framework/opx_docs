@@ -1,0 +1,15 @@
+---
+title: Server
+---
+
+### opx:bank:transfer
+
+Triggered after every successful player-to-player transfer (menu or export).
+
+```lua
+AddEventHandler('opx:bank:transfer', function(fromSource, toSource, amount) end)
+```
+
+- fromSource: `number`
+- toSource: `number`
+- amount: `number`

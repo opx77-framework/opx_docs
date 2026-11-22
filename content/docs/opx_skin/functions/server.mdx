@@ -1,0 +1,251 @@
+---
+title: Server
+---
+
+Reach the provider through opx_core, never by name. Async exports wait and must be called from a thread with `:await()`; sync ones answer at once.
+
+```lua
+local skin = exports.opx_core:GetProvider('skin') -- nil when none runs
+local ok, reason = Open77.exports.call(skin, 'SetClothing', source, { Head = false }):await()
+local ok, reason = Open77.exports.callSync(skin, 'SetUniform', source, outfit)
+```
+
+Slots are `Head`, `Face`, `InnerChest`, `OuterChest`, `Legs`, `Feet`, `Outfit`. A `slots` table maps a slot to an item record (`'Items.*'`) or `false` (empty).
+
+Common reasons: `'invalid_player'`, `'invalid_slots'`, `'busy'`, `'uniform_active'`, `'fitting'`, `'owned_by_other_resource'`, `'rate_limited'`, `'invalid_outfit_items'`, `'request_timeout'`, `'player_left'`, `'not_loaded'`, `'not_found'`, `'invalid_name'`, `'limit'`, `'db_error'`.
+
+## GetClothing
+
+Async. The character's saved clothes (never the uniform or preview), all 7 slots.
+
+```lua
+Open77.exports.call(skin, 'GetClothing', playerId, fresh):await()
+```
+
+- playerId: `number`
+- fresh?: `boolean` ask the client again
+
+**Returns**
+
+- slots?: `table`
+- reason?: `string`
+
+## SetClothing
+
+Async. Persistent change; omitted slots stay. Refused in uniform and during another resource's preview. Raises `opx:skin:clothingChanged`.
+
+```lua
+Open77.exports.call(skin, 'SetClothing', playerId, slots, options):await()
+```
+
+- playerId: `number`
+- slots: `table` at least one slot
+- options?: `table`
+  - reason?: `string` only logged
+
+**Returns**
+
+- ok: `boolean` the client applied it; the platform stores it `Config.settleMs` later
+- reason?: `string`
+
+## SetPreview
+
+Sync. Try-on owned by your resource, never stored, seen by players around. Omitted slots show the saved look.
+
+```lua
+Open77.exports.callSync(skin, 'SetPreview', playerId, slots)
+```
+
+- playerId: `number`
+- slots: `table` at least one slot
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+
+## ClearPreview
+
+Sync. Back to the saved look (or the uniform). `true` when there was no preview.
+
+```lua
+Open77.exports.callSync(skin, 'ClearPreview', playerId)
+```
+
+- playerId: `number`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_owner'` or `'invalid_player'`
+
+## SetUniform
+
+Sync. Uniform owned by your resource, never stored, removed when your resource stops.
+
+```lua
+Open77.exports.callSync(skin, 'SetUniform', playerId, outfit)
+```
+
+- playerId: `number`
+- outfit: `table` slots, or per body family:
+  - male?: `table` slots
+  - female?: `table` slots
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+
+```lua
+Open77.exports.callSync(skin, 'SetUniform', source, {
+    male = { OuterChest = 'Items.Jacket_01_basic_01', Head = false },
+    female = { OuterChest = 'Items.Jacket_01_basic_01', Head = false },
+})
+```
+
+## ClearUniform
+
+Sync. Removes your uniform. `true` when there was none.
+
+```lua
+Open77.exports.callSync(skin, 'ClearUniform', playerId)
+```
+
+- playerId: `number`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'not_owner'` or `'invalid_player'`
+
+## GetUniform
+
+Sync.
+
+```lua
+Open77.exports.callSync(skin, 'GetUniform', playerId)
+```
+
+- playerId: `number`
+
+**Returns**
+
+- uniform?: `{ owner: string }`
+
+## GetOutfits
+
+Sync, opx_skin only. Copies of the character's saved outfits.
+
+```lua
+Open77.exports.callSync(skin, 'GetOutfits', playerId)
+```
+
+- playerId: `number`
+
+**Returns**
+
+- outfits?: `table[]`
+  - id: `number` negative without a database
+  - name: `string`
+  - slots: `table` all 7 slots
+- reason?: `'not_loaded'` or `'invalid_player'`
+
+## SaveOutfit
+
+Async, opx_skin only.
+
+```lua
+Open77.exports.call(skin, 'SaveOutfit', playerId, name, slots):await()
+```
+
+- playerId: `number`
+- name: `string` 1 to 32 characters
+- slots?: `table` default: the current saved clothes
+
+**Returns**
+
+- id: `number` or `false`
+- reason?: `string`
+
+## WearOutfit
+
+Async, opx_skin only. `SetClothing` with the 7 slots of the outfit.
+
+```lua
+Open77.exports.call(skin, 'WearOutfit', playerId, id):await()
+```
+
+- playerId: `number`
+- id: `number`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+
+## RenameOutfit
+
+Sync, opx_skin only.
+
+```lua
+Open77.exports.callSync(skin, 'RenameOutfit', playerId, id, name)
+```
+
+- playerId: `number`
+- id: `number`
+- name: `string` 1 to 32 characters
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+
+## DeleteOutfit
+
+Sync, opx_skin only.
+
+```lua
+Open77.exports.callSync(skin, 'DeleteOutfit', playerId, id)
+```
+
+- playerId: `number`
+- id: `number`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `string`
+
+## OpenOutfits
+
+Sync, opx_skin only. Opens the outfits menu: wear, save current, rename, delete. Valid for `Config.outfits.sessionMinutes` and within `sessionDistance` metres.
+
+```lua
+Open77.exports.callSync(skin, 'OpenOutfits', playerId, options)
+```
+
+- playerId: `number`
+- options?: `table`
+  - title?: `string` default `"Outfits"`
+  - canSave?: `boolean` default `true`
+  - canDelete?: `boolean` default `true`
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_player'`, `'invalid_options'`, `'not_loaded'`, `'not_ready'`
+
+## CloseOutfits
+
+Sync, opx_skin only.
+
+```lua
+Open77.exports.callSync(skin, 'CloseOutfits', playerId)
+```
+
+- playerId: `number`
+
+**Returns**
+
+- ok: `true`

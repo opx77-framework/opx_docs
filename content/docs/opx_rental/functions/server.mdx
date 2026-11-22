@@ -1,0 +1,40 @@
+---
+title: Server
+---
+
+## GetRental
+
+The running rental of a player.
+
+```lua
+exports.opx_rental:GetRental(source)
+```
+
+- source: `integer`
+
+**Returns**
+
+- rental?: `table`
+  - vehicleId: `integer`
+  - plate: `string`
+  - record: `string`
+  - secondsLeft: `integer`
+    - `0` when time is over and the car is waiting to be empty.
+  - deposit: `integer`
+
+## EndRental
+
+Ends a player's rental now. The car is removed wherever it is, even occupied. Notifies the player and triggers `opx:rental:returned`.
+
+```lua
+exports.opx_rental:EndRental(source, refund)
+```
+
+- source: `integer`
+- refund?: `boolean`
+  - `true` gives the deposit back to the account that paid.
+
+**Returns**
+
+- ok: `boolean`
+- reason?: `'invalid_source'`, `'no_rental'`

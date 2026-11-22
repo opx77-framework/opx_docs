@@ -1,0 +1,115 @@
+---
+title: Client
+---
+
+Same names as `open77_chat`: replace `'open77_chat'` with `'opx_chat'`.
+
+## addMessage
+
+```lua
+Open77.exports.callSync('opx_chat', 'addMessage', message)
+```
+
+- message: `string` or `table`
+  - type?: `'player'`, `'system'`, `'announcement'`, `'warning'`, `'error'`, `'action'`, `'join'`, `'leave'`
+  - author?: `string`
+  - text?: `string`
+  - args?: `string[]` (FiveM shape)
+  - color?: `number[]` (`{ r, g, b }` author colour)
+  - title?: `string` (announcement heading)
+
+**Returns**
+
+- shown: `boolean`
+
+## clear
+
+```lua
+Open77.exports.callSync('opx_chat', 'clear')
+```
+
+**Returns**
+
+- ok: `boolean`
+
+## addSuggestion
+
+```lua
+Open77.exports.callSync('opx_chat', 'addSuggestion', command, help, parameters)
+```
+
+- command: `string` (`'/name'`)
+- help?: `string`
+- parameters?: `{ name: string, help?: string, optional?: boolean }[]`
+
+**Returns**
+
+- ok: `boolean`
+
+## removeSuggestion
+
+```lua
+Open77.exports.callSync('opx_chat', 'removeSuggestion', command)
+```
+
+- command: `string`
+
+**Returns**
+
+- ok: `boolean`
+
+## setEnabled
+
+Disabled: the composer closes and the feed is hidden.
+
+```lua
+Open77.exports.callSync('opx_chat', 'setEnabled', enabled)
+```
+
+- enabled: `boolean`
+
+**Returns**
+
+- ok: `boolean`
+
+## isEnabled
+
+```lua
+Open77.exports.callSync('opx_chat', 'isEnabled')
+```
+
+**Returns**
+
+- enabled: `boolean`
+
+## open
+
+Opens the composer.
+
+```lua
+Open77.exports.callSync('opx_chat', 'open')
+```
+
+**Returns**
+
+- opened: `boolean` (`false` when disabled or the keyboard focus is unavailable)
+
+## close
+
+```lua
+Open77.exports.callSync('opx_chat', 'close')
+```
+
+**Returns**
+
+- ok: `boolean`
+
+## isOpen
+
+```lua
+Open77.exports.callSync('opx_chat', 'isOpen')
+```
+
+**Returns**
+
+- open: `boolean`

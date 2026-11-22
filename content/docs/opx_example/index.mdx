@@ -1,0 +1,58 @@
+---
+title: opx_example
+description: Reference resource. A small NCPD desk written the way a third-party OPX resource should be.
+---
+
+<ResourceLinks repo="opx_example" />
+
+A small NCPD desk written the way a third-party OPX resource should be: a job, an item, a server callback, an eye option, a menu, a stash, logs, a staff row and its own table. Read `server/main.lua` and `client/main.lua` top to bottom. Its exports exist only so OPX can call it back: do not build on them.
+
+## Installation
+
+### Dependencies [step]
+
+- [opx_core](/docs/opx_core)
+- [opx_menu](/docs/opx_menu)
+- [opx_dialog](/docs/opx_dialog)
+- Optional, found through opx_core's provider slots: inventory, target, progress, logs. [opx_admin](/docs/opx_admin) when it runs.
+
+### Download [step]
+
+```bash
+git clone https://github.com/opx77-framework/opx_example.git
+```
+
+### Start order [step]
+
+Not in the default load list: add it by hand on a test server, after the providers.
+
+```jsonc
+"opx_core",
+"opx_menu",
+"opx_dialog",
+"opx_example"
+```
+
+The `opx_example_notes` table is created at start. The `example_leo` job and the `example_badge` item are registered from code.
+
+### Config [step]
+
+Everything is in `config.lua`.
+
+```lua
+Config.job = { name = 'example_leo', label = 'NCPD (example)', type = 'leo' } -- plus grades
+Config.item = { name = 'example_badge', weightG = 100, unique = true }        -- plus label, description
+Config.badgePrice = 50     -- cash, 0 = free
+Config.locker = nil        -- nil = anywhere, or { x, y, z, radius, bucket }
+Config.command = 'example' -- nil = no command
+Config.adminAction = true  -- row in the opx_admin player page
+Config.versionCheck = true
+```
+
+## Usage
+
+- `setjob me example_leo 1` (staff), then `/example`: the desk menu.
+- Menu: duty, run a plate, take a badge, show it, evidence locker, notes.
+- Use the badge in the inventory: players around you see it.
+- Targeting eye on a player, on duty: Check ID.
+- F10, a player's page: Give an example badge (`command.opx_admin.example.badge`).
